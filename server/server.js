@@ -1,18 +1,31 @@
-const express = require("express");
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { dbTestConnection } from './database.js';
+
+dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const cors = require("cors");
+const appPort = process.env.PORT || 3000;
+
 const corsOptions = {
   origin: ["http://localhost:5173"],
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/api", (req, res) => {
   res.json({ fruits: ["apple", "strawberry", "pineapple"] });
 });
 
-app.listen(8080, () => {
-  console.log("Server started on port 8080");
+app.listen(appPort, () => {
+  console.log(`Server is running on http://localhost:${appPort}`);
 });
 
-// test
+dbTestConnection();
