@@ -1,52 +1,84 @@
 import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
 import axios from "axios";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './App.css'
+
+import {Button, Col, Form, Row} from "react-bootstrap"
+
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [array, setArray] = useState([]);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
-  const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:8080/api");
-    setArray(response.data.fruits);
-    console.log(response.data.fruits);
-  };
+    const register = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/register', {
+                username,
+                password,
+            }, { withCredentials: true });
 
-  useEffect(() => {
-    fetchAPI();
-  }, []);
+            if (response.status === 201) {
+                alert('Registered successfully!');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+        }
+    };
+
+    const login = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/login', {
+                username,
+                password,
+            }, { withCredentials: true });
+
+            if (response.status === 200) {
+                alert('Logged in successfully!');
+            }
+        } catch (error) {
+            alert('Invalid credentials');
+            console.error('Login error:', error);
+        }
+    };
+
+
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-        {array.map((fruit, index) => (
-          <div key={index}>
-            <p>{fruit}</p>
-            <br></br>
-          </div>
-        ))}
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      <>
+          <h1 style={{marginBottom: '100px'}}>Регистрация/Авторизация тест</h1>
+
+          <Form>
+              <Form.Group>
+                  <Form.Label>Введите логин</Form.Label>
+                  <Form.Control type="text"
+                                placeholder="KirioA"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                  />
+
+              </Form.Group>
+              <Form.Group>
+                  <Form.Label>Введите Пароль</Form.Label>
+                  <Form.Control type="password"
+
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+
+                  />
+
+              </Form.Group>
+          </Form>
+
+
+          <Row style={{marginTop: '50px'}}>
+              <Col><Button onClick={register}>Регистрация</Button></Col>
+              <Col> <Button onClick={login}>Вход</Button></Col>
+          </Row>
+
+
+
+      </>
   );
 }
 
