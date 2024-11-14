@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 import { exit } from 'process';
 dotenv.config();
 
+if (!process.env.DB_URI) {
+    console.error("[.env] DB_URI indefined");
+    exit(1);
+}
 const client = new MongoClient(process.env.DB_URI);
 
 const main = async () => {
