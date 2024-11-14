@@ -1,17 +1,19 @@
 // src/components/PrivateRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth'; // Хук для проверки авторизации
+import { useAuth } from '../hooks/useAuth';
 
 function PrivateRoute({ children }) {
-    const { isAuthenticated } = useAuth(); // Проверяем, авторизован ли пользователь
+    const { user, loading } = useAuth();
 
-    if (!isAuthenticated) {
-        // Если не авторизован, перенаправляем на страницу входа
+    if (loading) {
+        return null; // Или компонент загрузки, пока данные загружаются
+    }
+
+    if (!user) {
         return <Navigate to="/auth" />;
     }
 
-    // Если авторизован, показываем дочерние компоненты (страницу аккаунта)
     return children;
 }
 

@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
-import CatalogPage from './pages/CatalogPage'; // Импортируем страницу каталога
+import CatalogPage from './pages/CatalogPage';
 import Cart from './pages/Cart';
 import NotFound from './pages/NotFound';
 import Auth from './pages/Auth';
@@ -24,8 +24,7 @@ function App() {
                     <div className="main-content">
                         <Routes>
                             <Route path="/" element={<Home />} />
-                            <Route path="/products" element={<Home />} />
-                            <Route path="/catalog" element={<CatalogPage />} /> {/* Новый маршрут для каталога */}
+                            <Route path="/catalog" element={<CatalogPage />} />
                             <Route path="/product/:id" element={<ProductDetail />} />
                             <Route path="/cart" element={<Cart />} />
                             <Route path="/auth" element={<Auth />} />

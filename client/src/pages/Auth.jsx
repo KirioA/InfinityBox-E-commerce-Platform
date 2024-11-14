@@ -34,8 +34,8 @@ function Auth() {
     const handleFormSwitch = () => {
         setIsLogin(!isLogin);
         // Сбрасываем сообщения об ошибке
-        setErrorMessage();
-        setErrorVariant();
+        setErrorMessage('');
+        setErrorVariant('');
     };
 
     // Обработчик отправки формы
@@ -145,7 +145,6 @@ function Auth() {
                 </div>
             </div>
         </Container>
-
     );
 }
 
