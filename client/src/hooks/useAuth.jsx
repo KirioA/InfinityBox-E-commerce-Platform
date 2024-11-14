@@ -38,9 +38,9 @@ export const useAuth = () => {
     }, []);
 
     // Функция для авторизации
-    const login = async (username, password) => {
+    const login = async (name, password) => {
         try {
-            const response = await axios.post('/api/auth/login', { username, password });
+            const response = await axios.post('/api/auth/login', { name, password });
             if (response.data.success) {
                 const { token, user } = response.data; // Получаем JWT и данные пользователя
                 localStorage.setItem('token', token); // Сохраняем JWT в localStorage
@@ -56,9 +56,9 @@ export const useAuth = () => {
     };
 
     // Функция для регистрации
-    const register = async (username, password, email) => {
+    const register = async (name, password, mail) => {
         try {
-            const response = await axios.post('/api/auth/register', { username, password, email });
+            const response = await axios.post('/api/auth/register', { name, password, mail });
             if (response.data.success) {
                 const { token, user } = response.data; // Получаем JWT и данные пользователя
                 localStorage.setItem('token', token); // Сохраняем JWT в localStorage
