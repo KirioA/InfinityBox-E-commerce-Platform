@@ -34,7 +34,7 @@ const userRegister = async (req: Request, res: Response) => {
             return res.status(409).send('Пользователь с таким именем уже есть!');
         }
 
-        usersCollection.insertOne({
+        await usersCollection.insertOne({
             name, mail, hash
         });
             

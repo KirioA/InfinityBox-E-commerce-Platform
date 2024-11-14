@@ -7,10 +7,16 @@ import dotenv from 'dotenv';
 import './database.js';
 
 import { userRegister } from './routes/auth/userRegister.js';
+import { exit } from 'process';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+if (!process.env.DB_URI || !process.env.JWT_SECRET) {
+  console.error("[.env]: the file is incomplete, add the fields!");
+  exit(1);
+}
 
 const app = express();
 const appPort = process.env.PORT || 3000;
