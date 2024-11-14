@@ -5,7 +5,7 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState('');
-    const [user, setUser] = useState({user: 'boba'});
+    const [user, setUser] = useState();
 
     // Загрузка пользователя из localStorage
     useEffect(() => {

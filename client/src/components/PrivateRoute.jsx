@@ -6,12 +6,12 @@ import { useAuth } from '../hooks/useAuth'; // Хук для проверки а
 function PrivateRoute({ children }) {
     const { isAuthenticated } = useAuth(); // Проверяем, авторизован ли пользователь
 
-    if (isAuthenticated) {
-        // Если авторизован, перенаправляем на личный кабинет
-        return <Navigate to="/account" />;
+    if (!isAuthenticated) {
+        // Если не авторизован, перенаправляем на страницу входа
+        return <Navigate to="/auth" />;
     }
 
-    // Если не авторизован, показываем страницу с формой регистрации/входа
+    // Если авторизован, показываем дочерние компоненты (страницу аккаунта)
     return children;
 }
 
