@@ -1,3 +1,4 @@
+// src/pages/Auth.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth'; // Хук для регистрации и входа
 import { useNavigate } from 'react-router-dom'; // Для редиректа после успешной регистрации
@@ -10,14 +11,13 @@ import '../styles/auth.css'; // Стиль для формы
 
 function Auth() {
     const { isAuthenticated } = useAuthCheck(); // Проверка аутентификации
-    const { register, login, message, variant, loading, networkError } = useAuth(); // Хук для регистрации/входа
+    const { register, login, error, loading } = useAuth(); // Хук для регистрации/входа
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState(''); // Для регистрации
     const [email, setEmail] = useState(''); // Для регистрации
     const [isLogin, setIsLogin] = useState(true); // Состояние для переключения между регистрацией и входом
     const [errorMessage, setErrorMessage] = useState('');
-    const [errorVariant, setErrorVariant] = useState('');
     const navigate = useNavigate(); // Используем только один navigate
 
     // Если пользователь авторизован, перенаправляем его на главную страницу
@@ -35,7 +35,6 @@ function Auth() {
         setIsLogin(!isLogin);
         // Сбрасываем сообщения об ошибке
         setErrorMessage('');
-        setErrorVariant('');
     };
 
     // Обработчик отправки формы
@@ -52,12 +51,11 @@ function Auth() {
             await register(username, password, email); // Добавлено email при регистрации
         }
 
-        if (message && variant === 'success') {
+        if (error && error === 'success') {
             // Перенаправление на главную страницу после успешной регистрации
             navigate('/');
         } else {
-            setErrorMessage(message); // Отображаем ошибку, если она есть
-            setErrorVariant(variant); // Отображаем соответствующий вариант ошибки
+            setErrorMessage(error); // Отображаем ошибку, если она есть
         }
     };
 
@@ -67,7 +65,7 @@ function Auth() {
                 <h2 className="auth-form-title">{isLogin ? 'Вход' : 'Регистрация'}</h2>
 
                 {/* Компонент для отображения ошибки */}
-                <ErrorAlert message={errorMessage || validationMessage} variant={errorVariant || validationVariant} />
+                <ErrorAlert message={errorMessage || validationMessage} variant={validationVariant} />
 
                 <Form onSubmit={handleSubmit}>
                     {/* Поле для имени пользователя */}
