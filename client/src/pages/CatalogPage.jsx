@@ -1,28 +1,14 @@
 // src/pages/CatalogPage.jsx
-import React, {useEffect, useState} from 'react';
+import React, { useContext } from 'react';
 import { Row, Col, Container } from 'react-bootstrap';
 import ProductCard from '../components/ProductCard';
-import {fetchProducts} from "../services/productService.jsx"; // Компонент карточки товара
+import { ProductContext } from '../contexts/ProductContext';
 
 const CatalogPage = () => {
-    const [products, setProducts] = useState([]); // Состояние для списка товаров
-    const [loading, setLoading] = useState(true); // Состояние загрузки
-    const [error, setError] = useState(null); // Состояние ошибки
+    const { products, loading, error } = useContext(ProductContext);
 
-    useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                const productList = await fetchProducts(); // Загружаем товары
-                setProducts(productList); // Обновляем состояние
-            } catch (err) {
-                setError('Ошибка при загрузке товаров');
-            } finally {
-                setLoading(false); // Останавливаем индикатор загрузки
-            }
-        };
-
-        loadProducts(); // Загружаем товары при монтировании компонента
-    }, []);
+    if (loading) return <p>Загрузка товаров...</p>;
+    if (error) return <p>{error}</p>;
 
     return (
         <Container>

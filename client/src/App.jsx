@@ -14,9 +14,11 @@ import PrivateRoute from './components/PrivateRoute';
 import Footer from './components/Footer';
 import './App.css';
 import './styles/global.css';
+import {ProductProvider} from "./contexts/ProductContext.jsx";
 
 function App() {
     return (
+        <ProductProvider>
         <CartProvider>
             <Router>
                 <div id="root">
@@ -36,6 +38,7 @@ function App() {
                 </div>
             </Router>
         </CartProvider>
+        </ProductProvider>
     );
 }
 

@@ -28,7 +28,7 @@ function CartPage() {
                 {cart.length === 0 ? (
                     <div>
                         <Alert variant="info">В корзине пока нет товаров.</Alert>
-                        <Link to="/products">
+                        <Link to="/catalog">
                             <Button variant="primary">Перейти в магазин</Button>
                         </Link>
                     </div>
