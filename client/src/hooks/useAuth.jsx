@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios'; // Импортируем axios для HTTP-запросов
 
+axios.defaults.baseURL = 'http://localhost:3000';
+
 export const useAuth = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);

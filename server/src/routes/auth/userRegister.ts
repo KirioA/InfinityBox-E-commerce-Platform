@@ -22,7 +22,7 @@ const userRegister = async (req: Request, res: Response) => {
         const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
         const db = await dbGetConnection();
-        const usersCollection = db.collection('user');
+        const usersCollection = db.collection('users');
         const user = await usersCollection.findOne({
             $or: [
               { name },
