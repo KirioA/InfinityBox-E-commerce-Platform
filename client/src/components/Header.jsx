@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import React from 'react';
 import { Navbar, Nav, Badge, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -19,6 +18,11 @@ function Header() {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto flex-grow-1 justify-content-end">
+                        {/* Ссылка на каталог товаров */}
+                        <Nav.Item className="mr-3">
+                            <Link to="/catalog" className="nav-link">Каталог товаров</Link>
+                        </Nav.Item>
+
                         {/* Если пользователь не авторизован, показываем кнопку для авторизации */}
                         {!user ? (
                             <Nav.Item className="mr-3">

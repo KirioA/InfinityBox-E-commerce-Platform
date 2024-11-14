@@ -1,26 +1,40 @@
-// src/pages/Home.js
 import React from 'react';
-import { Row, Col, Container } from 'react-bootstrap';
-import ProductCard from '../components/ProductCard'; // Компонент для отображения карточки товара
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import Breadcrumbs from '../components/Breadcrumbs.jsx'; // Компонент хлебных крошек
+import '../styles/home.css'; // Импорт стилей для страницы
 
 const Home = () => {
-    const products = [
-        { id: '1', title: 'Товар 1', description: 'Описание товара 1', price: 100 },
-        { id: '2', title: 'Товар 2', description: 'Описание товара 2', price: 200 },
-        { id: '3', title: 'Товар 3', description: 'Описание товара 3', price: 300 }
-    ];
-
     return (
-        <Container>
+        <Container className="home-container">
+            {/* Хлебные крошки */}
             <Breadcrumbs paths={[{ name: 'Главная страница', path: '/' }]} />
-            <h1 className="text-center mb-4">Главная страница</h1>
-            <Row>
-                {products.map(product => (
-                    <Col key={product.id} sm={12} md={6} lg={4}>
-                        <ProductCard {...product} />
-                    </Col>
-                ))}
+
+            {/* Основная информация о магазине */}
+            <Row className="mt-5 text-center">
+                <Col md={8} className="mx-auto">
+                    <h1 className="home-title">Добро пожаловать в наш интернет-магазин!</h1>
+                    <p className="home-description">
+                        Здесь вы найдете товары на любой вкус. Мы предлагаем только лучшие товары,
+                        чтобы сделать ваш выбор простым и приятным.
+                    </p>
+                    <Link to="/catalog">
+                        <Button variant="primary" className="home-button">
+                            Перейти в каталог товаров
+                        </Button>
+                    </Link>
+                </Col>
+            </Row>
+
+            {/* Дополнительная информация о компании */}
+            <Row className="mt-5">
+                <Col>
+                    <h2 className="home-about-title">О нас</h2>
+                    <p className="home-about-description">
+                        Мы — команда профессионалов, стремящихся предоставить вам лучший сервис и качественные товары.
+                        Наша цель — удовлетворение потребностей каждого клиента.
+                    </p>
+                </Col>
             </Row>
         </Container>
     );
