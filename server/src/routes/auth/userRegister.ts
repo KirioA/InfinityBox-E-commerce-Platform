@@ -34,11 +34,10 @@ const userRegister = async (req: Request, res: Response) => {
             return res.status(409).send('Пользователь с таким именем уже есть!');
         }
 
-        await usersCollection.insertOne({
+        const result = await usersCollection.insertOne({
             name, mail, hash
         });
             
-        const result = await usersCollection.insertOne(user);
         const token = jwt.sign({ 
             'id': result.insertedId,
             'name': name, 
@@ -46,7 +45,7 @@ const userRegister = async (req: Request, res: Response) => {
         }, process.env.JWT_SECRET, { expiresIn: '3d' });
 
         console.log(`[DONE]: Пользователь добавлен с ID: ${result.insertedId}`);
-        return res.status(201).send('Пользователь успешно зарегистрирован!').json({"success": true, "token": token});
+        return res.status(201).json({"success": true, "token": token});
         
     } catch (error) {
         console.error('[ERROR][userRegister]: ', error);
