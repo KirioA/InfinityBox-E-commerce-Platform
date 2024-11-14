@@ -3,7 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
 import './database.js';
+
+import { userRegister } from './routes/auth/userRegister.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -13,7 +16,7 @@ const app = express();
 const appPort = process.env.PORT || 3000;
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "http://localhost:3000"],
 };
 
 app.use(cors(corsOptions));
@@ -23,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/api", (req, res) => {
   res.json({ fruits: ["apple", "strawberry", "pineapple"] });
 });
+
+app.post('/api/v1/user/register', userRegister);
 
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);
