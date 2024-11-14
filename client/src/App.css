@@ -1,0 +1,14 @@
+/* src/styles/cart.css или src/styles/global.css */
+
+/* Основной контейнер для страницы */
+.cart-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Обеспечивает, что футер всегда будет внизу */
+}
+
+/* Контейнер корзины */
+.cart-container {
+    flex-grow: 1; /* Контент растягивает страницу */
+}
+

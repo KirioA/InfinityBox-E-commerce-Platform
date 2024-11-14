@@ -1,16 +1,15 @@
-// src/hooks/useValidation.jsx
 import { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
-export const useValidation = (username, password) => {
+export const useValidation = (username, password, confirmPassword, email, isLogin) => {
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState('');
 
     const validateInput = () => {
         const englishAlphabet = /^[A-Za-z0-9]+$/;
         const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if (!username || !password) {
+        if (!username || !password || (!isLogin && !confirmPassword)) {
             setMessage('Пожалуйста, заполните все поля.');
             setVariant('warning');
             return false;
@@ -25,6 +24,11 @@ export const useValidation = (username, password) => {
             setVariant('warning');
             return false;
         }
+        if (!emailPattern.test(email) && !isLogin) {
+            setMessage('Пожалуйста, введите правильный email.');
+            setVariant('warning');
+            return false;
+        }
         if (password.length < 6) {
             setMessage('Пароль должен быть не менее 6 символов.');
             setVariant('warning');
@@ -35,6 +39,12 @@ export const useValidation = (username, password) => {
             setVariant('warning');
             return false;
         }
+        if (!isLogin && password !== confirmPassword) {
+            setMessage('Пароли не совпадают.');
+            setVariant('warning');
+            return false;
+        }
+
         setMessage('');
         return true;
     };

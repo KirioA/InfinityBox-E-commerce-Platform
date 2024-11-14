@@ -190,3 +190,51 @@ input:focus, textarea:focus {
 .auth-form-input:focus {
     border-color: #6200ea;
 }
+/* src/styles/global.css или src/styles/cart.css */
+
+/* Контейнер страницы */
+.cart-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;  /* Обеспечивает растяжение страницы на весь экран */
+}
+
+/* Основной контейнер для корзины */
+.cart-container {
+    flex-grow: 1;  /* Контент растягивает страницу, а футер фиксируется внизу */
+}
+
+/* Футер */
+footer {
+    margin-top: auto; /* Фиксирует футер внизу страницы */
+    padding: 10px 0;
+    background-color: #f8f9fa;
+    text-align: center;
+    position: relative;
+}/* Убедитесь, что весь экран растягивается на всю высоту */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+/* Контейнер, который оборачивает все содержимое страницы */
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Растягиваем контейнер на всю высоту */
+}
+
+/* Контейнер для основного контента */
+.main-content {
+    flex: 1; /* Контент будет занимать все доступное пространство */
+}
+
+/* Футер */
+footer {
+    margin-top: auto; /* Это заставит футер быть внизу */
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+}
+

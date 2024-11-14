@@ -1,41 +1,42 @@
-// src/hooks/useAuth.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export const useAuth = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState('');
+    const [user, setUser] = useState({user: 'boba'});
 
-    const register = async (username, password) => {
+    // Загрузка пользователя из localStorage
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser)); // Восстанавливаем пользователя из localStorage
+        }
+    }, []);
+
+    const register = async (username, email, password) => {
         setLoading(true);
-        setMessage(''); // Сбрасываем предыдущие сообщения
+        setMessage('');
         setVariant('');
 
         try {
             const response = await axios.post('http://localhost:5000/register', {
                 username,
+                email,
                 password
             });
 
             if (response.status === 201) {
+                setUser({ username, email });
+                localStorage.setItem('user', JSON.stringify({ username, email })); // Сохраняем в localStorage
                 setMessage('Регистрация успешна!');
                 setVariant('success');
             }
         } catch (error) {
-            if (error.response) {
-                // Сервер вернул ошибку
-                setMessage(error.response.data.message || 'Ошибка регистрации');
-                setVariant('danger');
-            } else if (error.request) {
-                // Ошибка сети или отсутствие ответа от сервера
-                setMessage('Не удалось подключиться к серверу. Попробуйте позже.');
-                setVariant('danger');
-            } else {
-                // Неизвестная ошибка
-                setMessage('Неизвестная ошибка. Попробуйте снова.');
-                setVariant('danger');
-            }
+            const errorMessage = error.response ? error.response.data.error : 'Ошибка сети. Попробуйте позже.';
+            setMessage(errorMessage);
+            setVariant('danger');
         } finally {
             setLoading(false);
         }
@@ -43,7 +44,7 @@ export const useAuth = () => {
 
     const login = async (username, password) => {
         setLoading(true);
-        setMessage(''); // Сбрасываем предыдущие сообщения
+        setMessage('');
         setVariant('');
 
         try {
@@ -53,27 +54,26 @@ export const useAuth = () => {
             });
 
             if (response.status === 200) {
+                setUser({ username });
+                localStorage.setItem('user', JSON.stringify({ username })); // Сохраняем в localStorage
                 setMessage('Вход успешен!');
                 setVariant('success');
             }
         } catch (error) {
-            if (error.response) {
-                // Сервер вернул ошибку
-                setMessage(error.response.data.message || 'Ошибка входа');
-                setVariant('danger');
-            } else if (error.request) {
-                // Ошибка сети или отсутствие ответа от сервера
-                setMessage('Не удалось подключиться к серверу. Попробуйте позже.');
-                setVariant('danger');
-            } else {
-                // Неизвестная ошибка
-                setMessage('Неизвестная ошибка. Попробуйте снова.');
-                setVariant('danger');
-            }
+            const errorMessage = error.response ? error.response.data.error : 'Ошибка сети. Попробуйте позже.';
+            setMessage(errorMessage);
+            setVariant('danger');
         } finally {
             setLoading(false);
         }
     };
 
-    return { loading, message, variant, register, login };
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('user'); // Удаляем данные о пользователе из localStorage
+        setMessage('Вы вышли из аккаунта.');
+        setVariant('info');
+    };
+
+    return { loading, message, variant, user, register, login, logout };
 };
