@@ -11,21 +11,24 @@ export const useAuth = () => {
         const loadUser = async () => {
             try {
                 // Проверка авторизации на сервере
-                const response = await axios.get('/api/auth/check');
-                if (response.data.authenticated) {
-                    // Если сервер подтверждает авторизацию, восстанавливаем пользователя из сессии
-                    const storedUser = localStorage.getItem('user');
-                    if (storedUser) {
-                        setUser(JSON.parse(storedUser)); // Восстанавливаем пользователя
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const response = await axios.get('/api/auth/check', {
+                        headers: {
+                            Authorization: `Bearer ${token}` // Отправляем JWT в заголовке
+                        }
+                    });
+                    if (response.data.authenticated) {
+                        setUser(response.data.user); // Сохраняем данные о пользователе
+                    } else {
+                        setUser(null); // Если не авторизован, очищаем данные о пользователе
                     }
                 } else {
-                    // Если сервер не подтверждает авторизацию, очищаем localStorage
-                    localStorage.removeItem('user');
+                    setUser(null); // Если нет токена, очищаем данные о пользователе
                 }
             } catch (err) {
                 console.error('Ошибка при проверке сессии:', err);
                 setError('Ошибка проверки сессии');
-                localStorage.removeItem('user');
             } finally {
                 setLoading(false); // Заканчиваем загрузку
             }
@@ -39,9 +42,9 @@ export const useAuth = () => {
         try {
             const response = await axios.post('/api/auth/login', { username, password });
             if (response.data.success) {
-                const userData = response.data.user;
-                setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData)); // Сохраняем данные о пользователе в localStorage
+                const { token, user } = response.data; // Получаем JWT и данные пользователя
+                localStorage.setItem('token', token); // Сохраняем JWT в localStorage
+                setUser(user);
                 setError(null); // Очищаем ошибки
             } else {
                 setError('Неверный логин или пароль');
@@ -57,9 +60,9 @@ export const useAuth = () => {
         try {
             const response = await axios.post('/api/auth/register', { username, password, email });
             if (response.data.success) {
-                const userData = response.data.user;
-                setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData)); // Сохраняем данные о пользователе в localStorage
+                const { token, user } = response.data; // Получаем JWT и данные пользователя
+                localStorage.setItem('token', token); // Сохраняем JWT в localStorage
+                setUser(user);
                 setError(null); // Очищаем ошибки
             } else {
                 setError('Ошибка регистрации. Попробуйте еще раз.');
@@ -73,9 +76,8 @@ export const useAuth = () => {
     // Функция для выхода из аккаунта
     const logout = async () => {
         try {
-            await axios.post('/api/auth/logout'); // Отправляем запрос на сервер для выхода
-            setUser(null);
-            localStorage.removeItem('user'); // Очищаем localStorage
+            localStorage.removeItem('token'); // Удаляем токен из localStorage
+            setUser(null); // Очищаем данные о пользователе
         } catch (err) {
             console.error('Ошибка при выходе:', err);
         }
