@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { dbTestConnection } from './database.js';
+import './database.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -27,5 +27,3 @@ app.get("/api", (req, res) => {
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);
 });
-
-dbTestConnection();
