@@ -16,7 +16,7 @@ const userRegister = async (req: Request, res: Response) => {
         } = req.body;
 
         if (!name || !mail || !password) {
-            return res.status(400).send('Не все поля заполнены!');
+            return res.status(400).json({success: false, message: 'Не все поля заполнены!'});
         }
 
         const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
@@ -31,7 +31,7 @@ const userRegister = async (req: Request, res: Response) => {
         });
 
         if (user) {
-            return res.status(409).send('Пользователь с таким именем уже есть!');
+            return res.status(409).json({success: false, message: 'Пользователь с таким именем уже есть!'});
         }
 
         const result = await usersCollection.insertOne({
@@ -44,12 +44,12 @@ const userRegister = async (req: Request, res: Response) => {
             'mail': mail 
         }, process.env.JWT_SECRET, { expiresIn: '3d' });
 
-        console.log(`[DONE]: Пользователь добавлен с ID: ${result.insertedId}`);
+        console.log(`[DONE]: User create, ID: ${result.insertedId}`);
         return res.status(201).json({"success": true, "token": token});
         
     } catch (error) {
         console.error('[ERROR][userRegister]: ', error);
-        return res.status(500).send('Ошибка сервера.');
+        return res.status(500).json({success: false, message: 'Ошибка сервера!'});
     }
 };
 
