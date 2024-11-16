@@ -48,3 +48,5 @@ export default tseslint.config({
   },
 })
 ```
+
+Саня от души
