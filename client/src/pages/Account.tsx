@@ -1,7 +1,7 @@
 // src/pages/Account.tsx
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useSessionCheck } from '../hooks/auth/useSessionCheck.tsx'; // Импортируем useUser
-import { useUpdateUser } from '../hooks/auth/useUpdateUser.tsx'; // Используем хук для обновления данных
+import { useUpdateUser } from '../hooks/auth/useUpdateUser'; // Используем хук для обновления данных
 import { Form, Button, Container, Alert } from 'react-bootstrap';
 
 interface FormData {

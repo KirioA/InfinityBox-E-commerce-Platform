@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/auth/useLogin.tsx';
 import { useRegister } from '../hooks/auth/useRegister.tsx';
-import { useValidation } from '../hooks/useValidation.tsx';
+import { useValidation } from '../hooks/useValidation';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
-import ErrorAlert from '../components/ErrorAlert.tsx';
+import ErrorAlert from '../components/ErrorAlert';
 import { FaGoogle, FaTelegramPlane } from 'react-icons/fa'; // Импорт иконок
 import '../styles/auth.css';
+import '../styles/global.css'
 
 const Auth = () => {
     const [username, setUsername] = useState<string>('');

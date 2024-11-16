@@ -6,7 +6,7 @@ import { useSessionCheck } from '../hooks/auth/useSessionCheck';
 import { useLogout } from '../hooks/auth/useLogout';
 import { FiShoppingCart } from 'react-icons/fi';
 import { FaHeart } from 'react-icons/fa';
-
+import '../styles/header.css'
 const Header: React.FC = () => {
     const { getTotalItems } = useCart();
     const { user, loading } = useSessionCheck();
