@@ -35,7 +35,7 @@ const userRegister = async (req: Request, res: Response) => {
         }
 
         const result = await usersCollection.insertOne({
-            name, mail, hash
+            name, mail, hash, createdAt: new Date()
         });
             
         const token = jwt.sign({ 
