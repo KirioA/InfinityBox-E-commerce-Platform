@@ -1,5 +1,10 @@
 node_modules
+dist
+
+.vscode/*
+!.vscode/extensions.json
+.idea
 .env
+
 pnpm-lock.json
 package-lock.json
-dist/
