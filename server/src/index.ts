@@ -6,8 +6,9 @@ import dotenv from 'dotenv';
 
 import './database.js';
 
-import { userLogin } from './routes/auth/userLogin.js';
-import { userRegister } from './routes/auth/userRegister.js';
+import { userLogin } from './routes/user/userLogin.js';
+import { userRegister } from './routes/user/userRegister.js';
+import { userCheck } from './routes/user/userCheck.js';
 import { exit } from 'process';
 
 dotenv.config();
@@ -36,6 +37,7 @@ app.get("/api", (req, res) => {
 
 app.post('/api/v1/user/register', userRegister);
 app.post('/api/v1/user/login', userLogin);
+app.post('/api/v1/user/check', userCheck);
 
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);
