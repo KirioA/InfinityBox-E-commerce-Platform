@@ -12,6 +12,7 @@ import { userCheck } from './routes/user/userCheck.js';
 import { exit } from 'process';
 import { authenticateJWT } from './utils/JWT.js';
 import { userUpdate } from './routes/user/userUpdate.js';
+import { userFetchData } from './routes/user/userFetchData.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -41,6 +42,8 @@ app.post('/api/v1/user/register', userRegister);
 app.post('/api/v1/user/login', userLogin);
 app.post('/api/v1/user/check', userCheck);
 app.post('/api/v1/user/update', authenticateJWT, userUpdate);
+
+app.get('/api/v1/user/fetchdata', authenticateJWT, userFetchData);
 
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);
