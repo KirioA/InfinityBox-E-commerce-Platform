@@ -1,9 +1,25 @@
 import axios from 'axios';
 
-// Устанавливаем базовый URL для всех запросов
+
 axios.defaults.baseURL = 'http://localhost:3000';
 
-// Дополнительные настройки, если необходимо (например, таймаут)
-axios.defaults.timeout = 10000; // Устанавливаем таймаут на 10 секунд
+
+axios.defaults.timeout = 10000;
+
+
+axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 export default axios;

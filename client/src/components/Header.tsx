@@ -95,13 +95,13 @@ const Header: React.FC = () => {
                             </Nav.Item>
 
                             {/* Выход */}
-                            {isAuthenticated && (
-                                <Nav.Item className="mx-3">
-                                    <span onClick={handleLogout} className="nav-link text-white" style={{ cursor: 'pointer' }}>
-                                        Выйти
-                                    </span>
-                                </Nav.Item>
-                            )}
+                            {/*{isAuthenticated && (*/}
+                            {/*    <Nav.Item className="mx-3">*/}
+                            {/*        <span onClick={handleLogout} className="nav-link text-white" style={{ cursor: 'pointer' }}>*/}
+                            {/*            Выйти*/}
+                            {/*        </span>*/}
+                            {/*    </Nav.Item>*/}
+                            {/*)}*/}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
