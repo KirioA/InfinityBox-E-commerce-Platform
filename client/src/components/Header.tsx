@@ -2,23 +2,25 @@ import React, { useState } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { useSessionCheck } from '../hooks/auth/useSessionCheck';
-import { useLogout } from '../hooks/auth/useLogout';
+import { useAuth } from '../contexts/AuthContext';  // Используем ваш AuthContext
 import { FiShoppingCart } from 'react-icons/fi';
 import '../styles/header.css';
 
 const Header: React.FC = () => {
     const { getTotalItems } = useCart();
-    const { user, loading } = useSessionCheck();
-    const { logout } = useLogout();
+    const { isAuthenticated, setIsAuthenticated } = useAuth(); // Используем isAuthenticated из контекста
     const totalItems = getTotalItems();
 
     const [expanded, setExpanded] = useState(false);
 
-    if (loading) return null;
-
     const handleSelect = () => {
         setExpanded(false);
+    };
+
+    const handleLogout = () => {
+        // Удаляем токен из localStorage и меняем состояние isAuthenticated
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
     };
 
     return (
@@ -36,10 +38,10 @@ const Header: React.FC = () => {
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
                             {/* Каталог с выпадающим списком */}
                             <Nav.Item className="mx-3">
-                                <Dropdown >
+                                <Dropdown>
                                     <Dropdown.Toggle variant="link" className="nav-link text-white">
                                         Каталог
-                                    </Dropdown.Toggle >
+                                    </Dropdown.Toggle>
                                     <Dropdown.Menu onClick={handleSelect}>
                                         <Dropdown.Item as={Link} to="/category/1" onClick={handleSelect}>Категория 1</Dropdown.Item>
                                         <Dropdown.Item as={Link} to="/category/2" onClick={handleSelect}>Категория 2</Dropdown.Item>
@@ -50,12 +52,12 @@ const Header: React.FC = () => {
 
                             {/* Компания с выпадающим списком */}
                             <Nav.Item className="mx-3">
-                                <Dropdown >
+                                <Dropdown>
                                     <Dropdown.Toggle variant="link" className="nav-link text-white">
                                         Компания
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu onClick={handleSelect}>
-                                        <Dropdown.Item as={Link} to="/about" onClick={handleSelect} >О компании</Dropdown.Item>
+                                        <Dropdown.Item as={Link} to="/about" onClick={handleSelect}>О компании</Dropdown.Item>
                                         <Dropdown.Item as={Link} to="/careers" onClick={handleSelect}>Вакансии</Dropdown.Item>
                                         <Dropdown.Item as={Link} to="/news" onClick={handleSelect}>Новости</Dropdown.Item>
                                         <Dropdown.Item as={Link} to="/reviews" onClick={handleSelect}>Отзывы</Dropdown.Item>
@@ -68,14 +70,12 @@ const Header: React.FC = () => {
                                 <Link to="/delivery" className="nav-link text-white" onClick={handleSelect}>Доставка и оплата</Link>
                             </Nav.Item>
 
-                            {/* Вход / регистрация */}
+                            {/* Вход / регистрация или Аккаунт */}
                             <Nav.Item className="mx-3">
-                                {!user ? (
+                                {!isAuthenticated ? (
                                     <Link to="/auth" className="nav-link text-white" onClick={handleSelect}>Вход / Регистрация</Link>
                                 ) : (
-                                    <span onClick={() => { logout(); handleSelect(); }} className="nav-link text-white" style={{ cursor: 'pointer' }}>
-                                        Выйти
-                                    </span>
+                                    <Link to="/account" className="nav-link text-white" onClick={handleSelect}>Аккаунт</Link>
                                 )}
                             </Nav.Item>
 
@@ -93,6 +93,15 @@ const Header: React.FC = () => {
                                     )}
                                 </Link>
                             </Nav.Item>
+
+                            {/* Выход */}
+                            {isAuthenticated && (
+                                <Nav.Item className="mx-3">
+                                    <span onClick={handleLogout} className="nav-link text-white" style={{ cursor: 'pointer' }}>
+                                        Выйти
+                                    </span>
+                                </Nav.Item>
+                            )}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
