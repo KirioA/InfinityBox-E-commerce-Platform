@@ -8,17 +8,19 @@ export const useLogin = () => {
         try {
             const response = await axios.post('/api/v1/user/login', { name, password });
             if (response.data.success) {
+                // Сохраняем токен в localStorage
                 localStorage.setItem('token', response.data.token);
                 setError(null);
-                return response.data.user;
+                return true;  // Успешный логин, возвращаем true
             } else {
                 setError('Неверный логин или пароль');
-                return null;
+                console.log('Неверный логин или пароль');
+                return false;  // Ошибка, если данные неверные
             }
         } catch (err) {
             setError('Ошибка при авторизации');
             console.error(err);
-            return null;
+            return false;  // Ошибка при отправке запроса
         }
     };
 

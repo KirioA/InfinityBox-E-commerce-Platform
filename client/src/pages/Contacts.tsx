@@ -8,10 +8,10 @@ const Contacts: React.FC = () => {
             <h1 className="my-5">Контакты</h1>
             <Row>
                 <Col md={6}>
-                    <p>Телефон: +7 (999) 123-45-67</p>
-                    <p>Email: info@giftshop.com</p>
-                    <p>Адрес: Москва, ул. Пушкина, д. 10</p>
-                    <p>Рабочее время: Пн-Пт 10:00 - 18:00</p>
+                    <p>Телефон: +375 (44) 123-45-67</p>
+                    <p>Email: manager@infinityshop.by</p>
+                    <p>Адрес: Минск, Уручская 123</p>
+                    <p>Рабочее время: Пн-Пт 9:00 - 18:00</p>
                 </Col>
                 <Col md={6}>
                     <h5>Отправить сообщение</h5>
@@ -23,6 +23,10 @@ const Contacts: React.FC = () => {
                         <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control type="email" placeholder="Введите email" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Мобильный номер</Form.Label>
+                            <Form.Control type="phone" placeholder="Ваш номер телефона" />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Сообщение</Form.Label>

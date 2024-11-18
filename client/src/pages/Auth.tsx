@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLogin } from '../hooks/auth/useLogin.tsx';
-import { useRegister } from '../hooks/auth/useRegister.tsx';
+import { useLogin } from '../hooks/auth/useLogin';
+import { useRegister } from '../hooks/auth/useRegister';
 import { useValidation } from '../hooks/useValidation';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
 import ErrorAlert from '../components/ErrorAlert';
-import { FaGoogle, FaTelegramPlane } from 'react-icons/fa'; // Импорт иконок
+import { FaGoogle, FaTelegramPlane } from 'react-icons/fa';
 import '../styles/auth.css';
-import '../styles/global.css'
+import '../styles/global.css';
+import { useAuth } from '../contexts/AuthContext'; // Импортируйте хук для авторизации
 
 const Auth = () => {
     const [username, setUsername] = useState<string>('');
@@ -16,24 +17,45 @@ const Auth = () => {
     const [email, setEmail] = useState<string>('');
     const [isLogin, setIsLogin] = useState<boolean>(true);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);  // Добавили локальную ошибку для формы
+    const [error, setError] = useState<string | null>(null);
 
     const { login, error: loginError } = useLogin();
     const { register, error: registerError } = useRegister();
     const { message, variant, validateInput } = useValidation(username, password, confirmPassword, email, isLogin);
     const navigate = useNavigate();
 
+    // Получаем информацию о пользователе и его состоянии авторизации
+    const { isAuthenticated } = useAuth(); // Используем хук из AuthContext
+
+    useEffect(() => {
+        // Если пользователь уже авторизован, перенаправляем его на страницу аккаунта
+        if (isAuthenticated) {
+            navigate('/account');
+        }
+    }, [isAuthenticated, navigate]); // Слежение за состоянием авторизации
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (validateInput()) {
             if (isLogin) {
-                const user = await login(username, password);
-                if (user) {
-                    setError(null); // Убираем ошибку при успешном входе
-                    navigate('/account');
-                } else {
-                    setError(loginError || 'Ошибка при входе');
+                try {
+                    const success = await login(username, password);
+                    if (success) {
+                        setSuccessMessage('Вы успешно вошли в аккаунт!');
+                        setError(null);
+                        console.log('Успешный вход');
+
+                        // Редирект после успешного логина
+                        setTimeout(() => {
+                            window.location.reload()                        }, 2000);
+                    } else {
+                        setError(loginError || 'Ошибка при входе');
+                        console.error('Ошибка входа:', loginError);
+                    }
+                } catch (err) {
+                    setError('Не удалось выполнить вход');
+                    console.error('Ошибка в handleSubmit при логине:', err);
                 }
             } else {
                 const registrationSuccess = await register(username, password, email);
@@ -44,9 +66,10 @@ const Auth = () => {
                     setPassword('');
                     setConfirmPassword('');
                     setEmail('');
-                    setError(null); // Убираем ошибку после успешной регистрации
+                    setError(null);
                 } else {
                     setError(registerError || 'Ошибка при регистрации');
+                    console.error('Ошибка регистрации:', registerError);
                 }
             }
         }
@@ -55,11 +78,10 @@ const Auth = () => {
     const toggleLoginMode = () => {
         setIsLogin((prevState) => !prevState);
         setSuccessMessage(null);
-        setError(null);  // Очищаем ошибку при переключении на другую форму
+        setError(null);
     };
 
     useEffect(() => {
-        // Сбрасываем ошибку при переключении между формами (вход/регистрация)
         setError(null);
     }, [isLogin]);
 
@@ -68,7 +90,6 @@ const Auth = () => {
             <Card className="auth-form-card">
                 <Card.Body>
                     <h2 className="auth-form-title">{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
-
 
                     <ErrorAlert message={successMessage || error} />
                     {message && <Alert variant={variant}>{message}</Alert>}

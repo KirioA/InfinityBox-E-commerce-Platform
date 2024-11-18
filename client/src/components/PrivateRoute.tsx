@@ -1,23 +1,24 @@
-import React from 'react';
+// components/PrivateRoute.tsx
 import { Navigate } from 'react-router-dom';
-import { useSessionCheck } from '../hooks/auth/useSessionCheck'; // Хук для проверки сессии
+import { useAuth } from '../contexts/AuthContext';
 
-interface PrivateRouteProps {
-    children: React.ReactNode;
-}
-
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { user, loading } = useSessionCheck(); // Используем хук для проверки сессии
+const PrivateRoute = ({ element }: { element: JSX.Element }) => {
+    const { isAuthenticated, loading, error } = useAuth();
 
     if (loading) {
-        return null; // Пока идет проверка сессии, ничего не отображаем
+        return <div>Loading...</div>; // Показываем индикатор загрузки
     }
 
-    if (!user) {
-        return <Navigate to="/auth" />; // Перенаправляем на страницу авторизации, если пользователь не авторизован
+    if (error) {
+        console.error('Ошибка сессии:', error);
+        return <Navigate to="/auth" replace />;
     }
 
-    return <>{children}</>; // Рендерим дочерние компоненты, если пользователь авторизован
+    if (!isAuthenticated) {
+        return <Navigate to="/auth" replace />;
+    }
+
+    return element; // Показываем защищённую страницу
 };
 
 export default PrivateRoute;

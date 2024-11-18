@@ -1,20 +1,18 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+// App.tsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
+import { ProductProvider } from './contexts/ProductContext';
+import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import CatalogPage from './pages/CatalogPage';
 import Cart from './pages/Cart';
-import NotFound from './pages/NotFound';
 import Auth from './pages/Auth';
 import Account from './pages/Account';
 import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import Footer from './components/Footer';
-import './App.css';
-import './styles/global.css';
-import { ProductProvider } from './contexts/ProductContext';
-import { useSessionCheck } from './hooks/auth/useSessionCheck.tsx';
 import About from './pages/About';
 import Contacts from './pages/Contacts';
 import Delivery from './pages/Delivery';
@@ -22,22 +20,14 @@ import Vacancies from './pages/Vacancies';
 import News from './pages/News';
 import Reviews from './pages/Reviews';
 import Apply from './pages/Apply';
+import NotFound from './pages/NotFound';
 
 function App() {
-    const { user, loading, error } = useSessionCheck();
-
-    useEffect(() => {
-        if (loading) return; // Пока идет проверка, ничего не выводим
-        if (error) {
-            console.error('Ошибка проверки сессии:', error); // Обработка ошибки сессии
-        }
-    }, [loading, error]);
-
     return (
-        <ProductProvider>
-            <CartProvider>
-                <Router>
-                    <div id="root">
+        <AuthProvider> {/* Оборачиваем все приложение в AuthProvider */}
+            <ProductProvider>
+                <CartProvider>
+                    <Router>
                         <Header />
                         <div className="main-content">
                             <Routes>
@@ -46,7 +36,10 @@ function App() {
                                 <Route path="/product/:id" element={<ProductDetail />} />
                                 <Route path="/cart" element={<Cart />} />
                                 <Route path="/auth" element={<Auth />} />
-                                <Route path="/account" element={<PrivateRoute><Account user={user} /></PrivateRoute>} />
+                                <Route
+                                    path="/account"
+                                    element={<PrivateRoute element={<Account />} />}
+                                />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/contacts" element={<Contacts />} />
                                 <Route path="/delivery" element={<Delivery />} />
@@ -55,14 +48,13 @@ function App() {
                                 <Route path="/reviews" element={<Reviews />} />
                                 <Route path="/apply/:jobTitle" element={<Apply />} />
                                 <Route path="*" element={<NotFound />} />
-
                             </Routes>
                         </div>
                         <Footer />
-                    </div>
-                </Router>
-            </CartProvider>
-        </ProductProvider>
+                    </Router>
+                </CartProvider>
+            </ProductProvider>
+        </AuthProvider>
     );
 }
 
