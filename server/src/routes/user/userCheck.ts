@@ -20,7 +20,7 @@ const userCheck = async (req: Request, res: Response) => {
             }
 
             console.log(`[DONE]: User login checked, ID: ${decoded.id}`);
-            return res.status(201).json({"success": true, "token": token});
+            return res.status(201).json({success: true, token: token});
         })
     } catch (error) {
         console.error('[ERROR][userCheck]: ', error);
