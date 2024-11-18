@@ -1,34 +1,26 @@
-// contexts/AuthContext.tsx
-import React, { createContext, useContext } from 'react';
-import { useSessionCheck } from '../hooks/auth/useSessionCheck';
+import React, { createContext, useContext, useState } from 'react';
 
 interface AuthContextProps {
     isAuthenticated: boolean;
-    loading: boolean;
-    error: string | null;
-    logout: () => void;
+    setIsAuthenticated: (status: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { isAuthenticated, loading, error } = useSessionCheck();
-
-    const logout = () => {
-        localStorage.removeItem('token'); // Удаляем токен из локального хранилища при выходе
-    };
-
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, loading, error, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
-
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (context === undefined) {
+    if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
+};
+
+export const AuthProvider: React.FC = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('token'));
+
+    return (
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };

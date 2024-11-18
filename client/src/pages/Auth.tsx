@@ -28,11 +28,10 @@ const Auth = () => {
     const { isAuthenticated } = useAuth(); // Используем хук из AuthContext
 
     useEffect(() => {
-        // Если пользователь уже авторизован, перенаправляем его на страницу аккаунта
         if (isAuthenticated) {
-            navigate('/account');
+            navigate('/account'); // Перенаправляем на страницу аккаунта, если пользователь уже авторизован
         }
-    }, [isAuthenticated, navigate]); // Слежение за состоянием авторизации
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,18 +43,16 @@ const Auth = () => {
                     if (success) {
                         setSuccessMessage('Вы успешно вошли в аккаунт!');
                         setError(null);
-                        console.log('Успешный вход');
 
                         // Редирект после успешного логина
                         setTimeout(() => {
-                            window.location.reload()                        }, 2000);
+                            navigate('/account');
+                        }, 2000);
                     } else {
                         setError(loginError || 'Ошибка при входе');
-                        console.error('Ошибка входа:', loginError);
                     }
                 } catch (err) {
                     setError('Не удалось выполнить вход');
-                    console.error('Ошибка в handleSubmit при логине:', err);
                 }
             } else {
                 const registrationSuccess = await register(username, password, email);
@@ -69,7 +66,6 @@ const Auth = () => {
                     setError(null);
                 } else {
                     setError(registerError || 'Ошибка при регистрации');
-                    console.error('Ошибка регистрации:', registerError);
                 }
             }
         }

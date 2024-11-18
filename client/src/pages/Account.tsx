@@ -1,6 +1,5 @@
-// src/pages/Account.tsx
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useSessionCheck } from '../hooks/auth/useSessionCheck.tsx';
+import { useFetchData } from '../hooks/auth/useFetchData'; // Импортируем переименованный хук
 import { useUpdateUser } from '../hooks/auth/useUpdateUser';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Form, Button, Container, Alert, Row, Col, Card, Table, Modal } from 'react-bootstrap';
@@ -12,13 +11,14 @@ interface FormData {
 }
 
 const Account: React.FC = () => {
-    const { user, orderHistory } = useSessionCheck();
+    const { user, orderHistory, loading, error } = useFetchData(); // Используем новый хук
     const { updateUser } = useUpdateUser();
     const { logout } = useLogout();
     const [formData, setFormData] = useState<FormData>({ username: '', email: '', password: '' });
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState<'success' | 'danger'>('success');
     const [showLogoutModal, setShowLogoutModal] = useState(false); // Стейт для отображения модального окна
+    const [isEditing, setIsEditing] = useState(false); // Стейт для переключения режима редактирования
 
     useEffect(() => {
         if (user) {
@@ -37,6 +37,7 @@ const Account: React.FC = () => {
             await updateUser(formData);
             setMessage('Информация обновлена');
             setVariant('success');
+            setIsEditing(false); // После успешного обновления возвращаемся в режим просмотра
         } catch (error) {
             setMessage('Не удалось обновить информацию');
             setVariant('danger');
@@ -47,55 +48,67 @@ const Account: React.FC = () => {
         await logout();
         setShowLogoutModal(false);
         // Здесь можно перенаправить пользователя на страницу входа
-        // например,
         window.location.href = '/auth';
     };
+
+    if (loading) return <p>Загрузка...</p>; // Показать сообщение, пока идет загрузка данных
 
     return (
         <Container>
             <h2 className="mb-4">Личный кабинет</h2>
             {message && <Alert variant={variant}>{message}</Alert>}
+            {error && <Alert variant="danger">{error}</Alert>}
 
             <Row>
                 <Col md={6}>
                     <Card className="mb-4">
                         <Card.Header>Личная информация</Card.Header>
                         <Card.Body>
-                            <Form onSubmit={handleSubmit}>
-                                <Form.Group controlId="username">
-                                    <Form.Label>Имя пользователя</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="username"
-                                        value={formData.username}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
+                            {!isEditing ? (
+                                <>
+                                    <p>Имя пользователя: <strong>{user?.username}</strong></p>
+                                    <p>Email: <strong>{user?.email}</strong></p>
+                                    <Button variant="primary" onClick={() => setIsEditing(true)}>
+                                        Редактировать информацию
+                                    </Button>
+                                </>
+                            ) : (
+                                <Form onSubmit={handleSubmit}>
+                                    <Form.Group controlId="username">
+                                        <Form.Label>Имя пользователя</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="username"
+                                            value={formData.username}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
 
-                                <Form.Group controlId="email" className="mt-3">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
+                                    <Form.Group controlId="email" className="mt-3">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
 
-                                <Form.Group controlId="password" className="mt-3">
-                                    <Form.Label>Новый пароль</Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        name="password"
-                                        placeholder="Введите новый пароль"
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
+                                    <Form.Group controlId="password" className="mt-3">
+                                        <Form.Label>Новый пароль</Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            name="password"
+                                            placeholder="Введите новый пароль"
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
 
-                                <Button variant="primary" type="submit" className="mt-3">
-                                    Обновить
-                                </Button>
-                            </Form>
+                                    <Button variant="primary" type="submit" className="mt-3">
+                                        Обновить
+                                    </Button>
+                                </Form>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>

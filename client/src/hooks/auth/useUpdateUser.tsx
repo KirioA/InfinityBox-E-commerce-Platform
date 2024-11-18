@@ -24,7 +24,7 @@ export const useUpdateUser = () => {
 
             if (response.data.success) {
                 setError(null);
-                return response.data.user;
+                return response.data.user; // Возвращаем обновленные данные пользователя
             } else {
                 setError('Ошибка при обновлении данных пользователя');
                 return null;
