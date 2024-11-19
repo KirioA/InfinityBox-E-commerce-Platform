@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import '../styles/vacancies.css';
 
 const Vacancies: React.FC = () => {
@@ -12,11 +13,33 @@ const Vacancies: React.FC = () => {
 
     return (
         <div className="container mt-5 vacancies-page">
-            <h1 className="text-center mb-4">Вакансии</h1>
-            <p className="text-center mb-5">Присоединяйтесь к нашей команде и помогайте нам создавать отличные продукты!</p>
+            <motion.h1
+                className="text-center mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+            >
+                Вакансии
+            </motion.h1>
+
+            <motion.p
+                className="text-center mb-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.2 }}
+            >
+                Присоединяйтесь к нашей команде и помогайте нам создавать отличные продукты!
+            </motion.p>
+
             <div className="row">
                 {jobs.map((job, index) => (
-                    <div className="col-md-4 mb-4" key={index}>
+                    <motion.div
+                        className="col-md-4 mb-4"
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6, delay: index * 0.2 }}
+                    >
                         <Card className="vacancy-card">
                             <Card.Body>
                                 <Card.Title>{job.title}</Card.Title>
@@ -27,7 +50,7 @@ const Vacancies: React.FC = () => {
                                 </Link>
                             </Card.Body>
                         </Card>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>

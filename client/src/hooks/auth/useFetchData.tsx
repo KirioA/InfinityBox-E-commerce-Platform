@@ -39,7 +39,7 @@ export const useFetchData = (): UseFetchDataResponse => {
                     return;
                 }
 
-                const response = await axios.get('/api/v1/user/profile', {
+                const response = await axios.get('/api/v1/user/fetchdata', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 

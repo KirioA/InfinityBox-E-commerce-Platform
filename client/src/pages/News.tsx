@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 import '../styles/news.css';
 
 const News: React.FC = () => {
@@ -11,10 +12,24 @@ const News: React.FC = () => {
 
     return (
         <div className="container mt-5 news-page">
-            <h1 className="text-center mb-4">Новости</h1>
+            <motion.h1
+                className="text-center mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+            >
+                Новости
+            </motion.h1>
+
             <div className="row">
                 {news.map((item, index) => (
-                    <div className="col-md-4 mb-4" key={index}>
+                    <motion.div
+                        className="col-md-4 mb-4"
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6, delay: index * 0.2 }}
+                    >
                         <Card className="news-card">
                             <Card.Body>
                                 <Card.Title>{item.title}</Card.Title>
@@ -22,7 +37,7 @@ const News: React.FC = () => {
                                 <Card.Text>{item.content}</Card.Text>
                             </Card.Body>
                         </Card>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>

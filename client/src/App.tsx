@@ -21,6 +21,7 @@ import News from './pages/News';
 import Reviews from './pages/Reviews';
 import Apply from './pages/Apply';
 import NotFound from './pages/NotFound';
+import ScrollToTop from './components/ScrollToTop';  // Импортируем компонент
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
             <ProductProvider>
                 <CartProvider>
                     <Router>
+                        <ScrollToTop /> {/* Добавляем компонент ScrollToTop */}
                         <Header />
                         <div className="main-content">
                             <Routes>

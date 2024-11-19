@@ -1,6 +1,6 @@
-// components/Contacts.tsx
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 import useSendFeedback from '../hooks/useSendFeedback';  // Импортируем хук
 import '../styles/contacts.css';
 
@@ -27,68 +27,89 @@ const Contacts: React.FC = () => {
 
     return (
         <Container className="contacts-page text-white">
-            <h1 className="my-5">Контакты</h1>
+            <motion.h1
+                className="my-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+            >
+                Контакты
+            </motion.h1>
+
             <Row>
                 <Col md={6}>
-                    <p>Телефон: +375 (44) 123-45-67</p>
-                    <p>Email: manager@infinityshop.by</p>
-                    <p>Адрес: Минск, Уручская 123</p>
-                    <p>Рабочее время: Пн-Пт 9:00 - 18:00</p>
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 1.2 }}
+                    >
+                        <p>Телефон: +375 (44) 123-45-67</p>
+                        <p>Email: manager@infinityshop.by</p>
+                        <p>Адрес: Минск, Уручская 123</p>
+                        <p>Рабочее время: Пн-Пт 9:00 - 18:00</p>
+                    </motion.div>
                 </Col>
+
                 <Col md={6}>
-                    <h5>Отправить сообщение</h5>
-                    {error && <Alert variant="danger">{error}</Alert>}
-                    {success && <Alert variant="success">{success}</Alert>}
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Ваше имя</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Введите имя"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                placeholder="Введите email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Мобильный номер</Form.Label>
-                            <Form.Control
-                                type="phone"
-                                placeholder="Ваш номер телефона"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Сообщение</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                placeholder="Ваше сообщение"
-                                name="message"
-                                value={formData.message}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Button variant="primary" type="submit" disabled={loading}>
-                            {loading ? 'Отправка...' : 'Отправить'}
-                        </Button>
-                    </Form>
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 1.4 }}
+                    >
+                        <h5>Отправить сообщение</h5>
+                        {error && <Alert variant="danger">{error}</Alert>}
+                        {success && <Alert variant="success">{success}</Alert>}
+                        <Form onSubmit={handleSubmit}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Ваше имя</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Введите имя"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Введите email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Мобильный номер</Form.Label>
+                                <Form.Control
+                                    type="phone"
+                                    placeholder="Ваш номер телефона"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Сообщение</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    placeholder="Ваше сообщение"
+                                    name="message"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Button variant="primary" type="submit" disabled={loading}>
+                                {loading ? 'Отправка...' : 'Отправить'}
+                            </Button>
+                        </Form>
+                    </motion.div>
                 </Col>
             </Row>
         </Container>
