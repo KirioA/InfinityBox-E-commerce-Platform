@@ -1,57 +1,56 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useFetchData } from '../hooks/auth/useFetchData'; // Импортируем переименованный хук
+import React, { useState, useEffect } from 'react';
+import { useFetchData } from '../hooks/auth/useFetchData';
 import { useUpdateUser } from '../hooks/auth/useUpdateUser';
 import { useLogout } from '../hooks/auth/useLogout';
-import { Form, Button, Container, Alert, Row, Col, Card, Table, Modal } from 'react-bootstrap';
-
-interface FormData {
-    username: string;
-    email: string;
-    password?: string;
-}
+import { Container, Button, Row, Col, Card, Image, Modal, Alert } from 'react-bootstrap';
+import ChangePasswordModal from '../../src/components/modal/changePasswordModal.tsx';
+import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
 
 const Account: React.FC = () => {
-    const { user, orderHistory, loading, error } = useFetchData(); // Используем новый хук
+    const { user, orderHistory, loading, error } = useFetchData();
     const { updateUser } = useUpdateUser();
     const { logout } = useLogout();
-    const [formData, setFormData] = useState<FormData>({ username: '', email: '', password: '' });
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+    const [showUploadAvatarModal, setShowUploadAvatarModal] = useState(false);
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState<'success' | 'danger'>('success');
-    const [showLogoutModal, setShowLogoutModal] = useState(false); // Стейт для отображения модального окна
-    const [isEditing, setIsEditing] = useState(false); // Стейт для переключения режима редактирования
 
     useEffect(() => {
         if (user) {
-            setFormData({ username: user.username, email: user.email });
+            // Обновление состояния формы данными пользователя, если требуется
         }
     }, [user]);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleUpdatePassword = async (newPassword: string) => {
         try {
-            await updateUser(formData);
-            setMessage('Информация обновлена');
+            await updateUser({ password: newPassword });
+            setMessage('Пароль успешно обновлен');
             setVariant('success');
-            setIsEditing(false); // После успешного обновления возвращаемся в режим просмотра
-        } catch (error) {
-            setMessage('Не удалось обновить информацию');
+        } catch {
+            setMessage('Не удалось обновить пароль');
             setVariant('danger');
         }
+        setShowChangePasswordModal(false);
+    };
+
+    const handleUpdateAvatar = async (avatarUrl: string) => {
+        try {
+            await updateUser({ avatarUrl });
+            setMessage('Аватар успешно обновлен');
+            setVariant('success');
+        } catch {
+            setMessage('Не удалось обновить аватар');
+            setVariant('danger');
+        }
+        setShowUploadAvatarModal(false);
     };
 
     const handleLogout = async () => {
         await logout();
-        setShowLogoutModal(false);
-        // Здесь можно перенаправить пользователя на страницу входа
         window.location.href = '/auth';
     };
 
-    if (loading) return <p>Загрузка...</p>; // Показать сообщение, пока идет загрузка данных
+    if (loading) return <p>Загрузка...</p>;
 
     return (
         <Container>
@@ -64,51 +63,21 @@ const Account: React.FC = () => {
                     <Card className="mb-4">
                         <Card.Header>Личная информация</Card.Header>
                         <Card.Body>
-                            {!isEditing ? (
-                                <>
-                                    <p>Имя пользователя: <strong>{user?.username}</strong></p>
-                                    <p>Email: <strong>{user?.email}</strong></p>
-                                    <Button variant="primary" onClick={() => setIsEditing(true)}>
-                                        Редактировать информацию
-                                    </Button>
-                                </>
-                            ) : (
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group controlId="username">
-                                        <Form.Label>Имя пользователя</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="username"
-                                            value={formData.username}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group controlId="email" className="mt-3">
-                                        <Form.Label>Email</Form.Label>
-                                        <Form.Control
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group controlId="password" className="mt-3">
-                                        <Form.Label>Новый пароль</Form.Label>
-                                        <Form.Control
-                                            type="password"
-                                            name="password"
-                                            placeholder="Введите новый пароль"
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-
-                                    <Button variant="primary" type="submit" className="mt-3">
-                                        Обновить
-                                    </Button>
-                                </Form>
-                            )}
+                            <Image
+                                src={user?.avatarUrl || '/default-avatar.png'}
+                                roundedCircle
+                                className="mb-3"
+                                width="100"
+                                height="100"
+                            />
+                            <p>Имя пользователя: <strong>{user?.username}</strong></p>
+                            <p>Email: <strong>{user?.email}</strong></p>
+                            <Button variant="primary" onClick={() => setShowChangePasswordModal(true)}>
+                                Сменить пароль
+                            </Button>
+                            <Button variant="primary" className="ms-2" onClick={() => setShowUploadAvatarModal(true)}>
+                                Изменить аватар
+                            </Button>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -159,25 +128,21 @@ const Account: React.FC = () => {
                 </Col>
             </Row>
 
-            <Button variant="danger" className="mt-4" onClick={() => setShowLogoutModal(true)}>
+            <Button variant="danger" className="mt-4" onClick={handleLogout}>
                 Выйти
             </Button>
 
-            {/* Модальное окно для подтверждения выхода */}
-            <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Подтверждение выхода</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Вы уверены, что хотите выйти?</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowLogoutModal(false)}>
-                        Отмена
-                    </Button>
-                    <Button variant="danger" onClick={handleLogout}>
-                        Выйти
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <ChangePasswordModal
+                show={showChangePasswordModal}
+                onHide={() => setShowChangePasswordModal(false)}
+                onSave={handleUpdatePassword}
+            />
+
+            <UploadAvatarModal
+                show={showUploadAvatarModal}
+                onHide={() => setShowUploadAvatarModal(false)}
+                onSave={handleUpdateAvatar}
+            />
         </Container>
     );
 };
