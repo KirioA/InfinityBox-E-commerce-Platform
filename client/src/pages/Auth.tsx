@@ -6,9 +6,7 @@ import { useValidation } from '../hooks/useValidation';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
 import ErrorAlert from '../components/ErrorAlert';
 import { FaGoogle, FaTelegramPlane } from 'react-icons/fa';
-import '../styles/auth.css';
-import '../styles/global.css';
-import { useAuth } from '../contexts/AuthContext'; // Импортируйте хук для авторизации
+import { useAuth } from '../contexts/AuthContext';
 
 const Auth = () => {
     const [username, setUsername] = useState<string>('');
@@ -18,18 +16,19 @@ const Auth = () => {
     const [isLogin, setIsLogin] = useState<boolean>(true);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isActive, setIsActive] = useState(false);
 
     const { login, error: loginError } = useLogin();
     const { register, error: registerError } = useRegister();
     const { message, variant, validateInput } = useValidation(username, password, confirmPassword, email, isLogin);
     const navigate = useNavigate();
 
-    // Получаем информацию о пользователе и его состоянии авторизации
-    const { isAuthenticated } = useAuth(); // Используем хук из AuthContext
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/account'); // Перенаправляем на страницу аккаунта, если пользователь уже авторизован
+            navigate('/account');
         }
     }, [isAuthenticated, navigate]);
 
@@ -44,14 +43,13 @@ const Auth = () => {
                         setSuccessMessage('Вы успешно вошли в аккаунт!');
                         setError(null);
 
-                        // Редирект после успешного логина
                         setTimeout(() => {
                             navigate('/account');
                         }, 2000);
                     } else {
                         setError(loginError || 'Ошибка при входе');
                     }
-                } catch (err) {
+                } catch {
                     setError('Не удалось выполнить вход');
                 }
             } else {
@@ -82,10 +80,10 @@ const Auth = () => {
     }, [isLogin]);
 
     return (
-        <div className="auth-container">
-            <Card className="auth-form-card">
+        <div style={styles.authContainer}>
+            <Card style={styles.authFormCard}>
                 <Card.Body>
-                    <h2 className="auth-form-title">{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
+                    <h2 style={styles.authFormTitle}>{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
 
                     <ErrorAlert message={successMessage || error} />
                     {message && <Alert variant={variant}>{message}</Alert>}
@@ -94,7 +92,7 @@ const Auth = () => {
                         <Form.Group className="mb-3">
                             <Form.Label>Логин</Form.Label>
                             <Form.Control
-                                className="auth-form-input"
+                                style={styles.authFormInput}
                                 type="text"
                                 placeholder="Введите логин"
                                 value={username}
@@ -106,7 +104,7 @@ const Auth = () => {
                             <Form.Group className="mb-3">
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
-                                    className="auth-form-input"
+                                    style={styles.authFormInput}
                                     type="email"
                                     placeholder="Введите email"
                                     value={email}
@@ -118,7 +116,7 @@ const Auth = () => {
                         <Form.Group className="mb-3">
                             <Form.Label>Пароль</Form.Label>
                             <Form.Control
-                                className="auth-form-input"
+                                style={styles.authFormInput}
                                 type="password"
                                 placeholder="Введите пароль"
                                 value={password}
@@ -130,7 +128,7 @@ const Auth = () => {
                             <Form.Group className="mb-3">
                                 <Form.Label>Подтвердите пароль</Form.Label>
                                 <Form.Control
-                                    className="auth-form-input"
+                                    style={styles.authFormInput}
                                     type="password"
                                     placeholder="Подтвердите пароль"
                                     value={confirmPassword}
@@ -139,26 +137,33 @@ const Auth = () => {
                             </Form.Group>
                         )}
 
-                        <Button variant="primary" type="submit" className="auth-form-button">
+                        <Button
+                            type="submit"
+                            style={{
+                                ...styles.authFormButton,
+                                ...(isHovered ? styles.authFormButtonHover : {}),
+                                ...(isActive ? styles.authFormButtonActive : {}),
+                            }}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            onMouseDown={() => setIsActive(true)}
+                            onMouseUp={() => setIsActive(false)}
+                        >
                             {isLogin ? 'Войти' : 'Зарегистрироваться'}
                         </Button>
 
-                        <Button
-                            variant="link"
-                            onClick={toggleLoginMode}
-                            className="auth-form-toggle-link"
-                        >
+                        <Button variant="link" onClick={toggleLoginMode} style={styles.authFormToggleLink}>
                             {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
                         </Button>
                     </Form>
 
-                    <div className="alternative-login">
+                    <div style={styles.alternativeLogin}>
                         <p>Или войдите с помощью:</p>
-                        <div className="social-icons">
-                            <Button variant="outline-danger" className="social-icon-btn">
+                        <div style={styles.socialIcons}>
+                            <Button variant="outline-danger" style={styles.googleBtn}>
                                 <FaGoogle size={24} />
                             </Button>
-                            <Button variant="outline-primary" className="social-icon-btn">
+                            <Button variant="outline-primary" style={styles.telegramBtn}>
                                 <FaTelegramPlane size={24} />
                             </Button>
                         </div>
@@ -167,6 +172,104 @@ const Auth = () => {
             </Card>
         </div>
     );
+};
+
+const styles = {
+    authContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+    },
+    authFormCard: {
+        width: '100%',
+        maxWidth: 400,
+        padding: 20,
+        borderRadius: 20,
+        backgroundColor: '#ffffff',
+        color: '#000000',
+        boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+    },
+    authFormTitle: {
+        textAlign: 'center',
+        marginBottom: 20,
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    authFormInput: {
+        backgroundColor: '#ffffff',
+        color: '#333',
+        border: '1px solid #81c784',
+        borderRadius: 5,
+        padding: 12,
+        width: '100%',
+        marginBottom: 15,
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+    },
+    authFormButton: {
+        width: '100%',
+        padding: 12,
+        backgroundColor: '#ffffff', // Белый фон
+        borderColor: '#81c784', // Зеленая обводка
+        color: '#81c784', // Цвет текста фиолетовый
+        border: '2px solid #81c784', // Толстая зеленая обводка
+        borderRadius: 5,
+        fontSize: 16,
+        fontWeight: 'bold',
+        transition: 'all 0.3s', // Плавные переходы
+    },
+    authFormButtonHover: {
+        backgroundColor: '#81c784', // Цвет фона при наведении
+        color: '#ffffff', // Цвет текста при наведении
+        borderColor: '#81c784', // Обводка не меняется
+    },
+    authFormButtonActive: {
+        backgroundColor: '#66bb6a', // Цвет фона при нажатии
+        color: '#ffffff', // Цвет текста при нажатии
+        borderColor: '#66bb6a', // Обводка меняется на более темный зеленый
+    },
+    authFormToggleLink: {
+        display: 'block',
+        textAlign: 'center',
+        color: '#bdbdbd', // Светло-черный цвет
+        fontSize: 14,
+        marginTop: 15,
+        textDecoration: 'none',
+    },
+    alternativeLogin: {
+        marginTop: 30,
+        textAlign: 'center',
+    },
+    socialIcons: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 20,
+        marginTop: 20,
+    },
+    googleBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 40,
+        height: 40,
+        borderRadius: '50%',
+        backgroundColor: '#db4437', // Красный фон для Google
+        border: 'none',
+        color: 'white',
+        transition: 'all 0.3s',
+    },
+    telegramBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 40,
+        height: 40,
+        borderRadius: '50%',
+        backgroundColor: '#0088cc', // Синий фон для Telegram
+        border: 'none',
+        color: 'white',
+        transition: 'all 0.3s',
+    },
 };
 
 export default Auth;
