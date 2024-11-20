@@ -2,32 +2,67 @@ import React, { useState } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';  // Используем ваш AuthContext
+import { useAuth } from '../contexts/AuthContext';
 import { FiShoppingCart } from 'react-icons/fi';
-import '../styles/header.css';
 
 const Header: React.FC = () => {
     const { getTotalItems } = useCart();
-    const { isAuthenticated, setIsAuthenticated } = useAuth(); // Используем isAuthenticated из контекста
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
     const totalItems = getTotalItems();
 
     const [expanded, setExpanded] = useState(false);
 
-    const handleSelect = () => {
-        setExpanded(false);
-    };
+    const handleSelect = () => setExpanded(false);
 
     const handleLogout = () => {
-        // Удаляем токен из localStorage и меняем состояние isAuthenticated
         localStorage.removeItem('token');
         setIsAuthenticated(false);
     };
 
+    const styles = {
+        header: {
+            position: 'fixed' as const,
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 999,
+        },
+        navbar: {
+            backgroundColor: '#ffffff',
+            padding: '20px 0',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        },
+        dropdownMenu: {
+            backgroundColor: '#ffffff',
+            border: 'none',
+        },
+        dropdownItem: {
+            color: '#000000',
+        },
+        dropdownItemHover: {
+            backgroundColor: '#444444',
+            color: '#f5a623',
+        },
+        navLink: {
+            color: '#000',
+            fontWeight: 500,
+        },
+        badge: {
+            fontSize: '0.85rem',
+            padding: '0.2rem 0.6rem',
+        },
+    };
+
     return (
-        <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999 }}>
-            <Navbar expand="lg" variant="dark" className="navbar-custom" expanded={expanded}>
+        <header style={styles.header}>
+            <Navbar
+                expand="lg"
+                variant="dark"
+                style={styles.navbar}
+                expanded={expanded}
+            >
                 <Container>
-                    <Navbar.Brand as={Link} to="/" className="font-weight-bold text-white">
+                    <Navbar.Brand as={Link} to="/">
                         <img src="/path/to/logo.png" alt="logo" height="40" />
                     </Navbar.Brand>
                     <Navbar.Toggle
@@ -36,72 +71,87 @@ const Header: React.FC = () => {
                     />
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
-                            {/* Каталог с выпадающим списком */}
+                            {/* Каталог */}
                             <Nav.Item className="mx-3">
                                 <Dropdown>
-                                    <Dropdown.Toggle variant="link" className="nav-link text-white">
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Каталог
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu onClick={handleSelect}>
-                                        <Dropdown.Item as={Link} to="/category/1" onClick={handleSelect}>Категория 1</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/category/2" onClick={handleSelect}>Категория 2</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/category/3" onClick={handleSelect}>Категория 3</Dropdown.Item>
+                                    <Dropdown.Menu style={styles.dropdownMenu}>
+                                        {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
+                                            <Dropdown.Item
+                                                as={Link}
+                                                to={`/category/${index + 1}`}
+                                                key={category}
+                                                style={styles.dropdownItem}
+                                            >
+                                                {category}
+                                            </Dropdown.Item>
+                                        ))}
                                     </Dropdown.Menu>
                                 </Dropdown>
                             </Nav.Item>
 
-                            {/* Компания с выпадающим списком */}
+                            {/* Компания */}
                             <Nav.Item className="mx-3">
                                 <Dropdown>
-                                    <Dropdown.Toggle variant="link" className="nav-link text-white">
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Компания
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu onClick={handleSelect}>
-                                        <Dropdown.Item as={Link} to="/about" onClick={handleSelect}>О компании</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/careers" onClick={handleSelect}>Вакансии</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/news" onClick={handleSelect}>Новости</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/reviews" onClick={handleSelect}>Отзывы</Dropdown.Item>
+                                    <Dropdown.Menu style={styles.dropdownMenu}>
+                                        {[
+                                            { label: 'О компании', link: '/about' },
+                                            { label: 'Вакансии', link: '/careers' },
+                                            { label: 'Новости', link: '/news' },
+                                            { label: 'Отзывы', link: '/reviews' },
+                                        ].map((item) => (
+                                            <Dropdown.Item
+                                                as={Link}
+                                                to={item.link}
+                                                key={item.label}
+                                                style={styles.dropdownItem}
+                                            >
+                                                {item.label}
+                                            </Dropdown.Item>
+                                        ))}
                                     </Dropdown.Menu>
                                 </Dropdown>
                             </Nav.Item>
 
-                            {/* Доставка и оплата */}
+                            {/* Прочие ссылки */}
                             <Nav.Item className="mx-3">
-                                <Link to="/delivery" className="nav-link text-white" onClick={handleSelect}>Доставка и оплата</Link>
+                                <Link to="/delivery" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                    Доставка и оплата
+                                </Link>
                             </Nav.Item>
-
-                            {/* Вход / регистрация или Аккаунт */}
                             <Nav.Item className="mx-3">
                                 {!isAuthenticated ? (
-                                    <Link to="/auth" className="nav-link text-white" onClick={handleSelect}>Вход / Регистрация</Link>
+                                    <Link to="/auth" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                        Вход / Регистрация
+                                    </Link>
                                 ) : (
-                                    <Link to="/account" className="nav-link text-white" onClick={handleSelect}>Аккаунт</Link>
+                                    <Link to="/account" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                        Аккаунт
+                                    </Link>
                                 )}
                             </Nav.Item>
-
-                            {/* Контакты */}
                             <Nav.Item className="mx-3">
-                                <Link to="/contacts" className="nav-link text-white" onClick={handleSelect}>Контакты</Link>
+                                <Link to="/contacts" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                    Контакты
+                                </Link>
                             </Nav.Item>
 
                             {/* Корзина */}
                             <Nav.Item className="mx-3">
-                                <Link to="/cart" className="nav-link d-flex align-items-center text-white" onClick={handleSelect}>
+                                <Link to="/cart" className="nav-link d-flex align-items-center" style={styles.navLink}>
                                     <FiShoppingCart size={24} />
                                     {totalItems > 0 && (
-                                        <span className="badge bg-danger ms-2">{totalItems}</span>
+                                        <span className="badge bg-danger ms-2" style={styles.badge}>
+                                            {totalItems}
+                                        </span>
                                     )}
                                 </Link>
                             </Nav.Item>
-
-                            {/* Выход */}
-                            {/*{isAuthenticated && (*/}
-                            {/*    <Nav.Item className="mx-3">*/}
-                            {/*        <span onClick={handleLogout} className="nav-link text-white" style={{ cursor: 'pointer' }}>*/}
-                            {/*            Выйти*/}
-                            {/*        </span>*/}
-                            {/*    </Nav.Item>*/}
-                            {/*)}*/}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
