@@ -1,8 +1,81 @@
 import React from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import '../styles/vacancies.css';
+
+const styles = {
+    pageContainer: {
+        color: '#fff',
+        marginTop: '20px',
+        padding: '0 15px',
+    },
+    heading: {
+        textAlign: 'center' as const,
+        fontSize: '28px',
+        fontWeight: 'bold',
+        color: '#81c784', // Зеленый цвет заголовка
+        marginBottom: '40px',
+    },
+    subtitle: {
+        textAlign: 'center' as const,
+        marginBottom: '40px',
+        fontSize: '18px',
+        color: '#6c6c6c',
+    },
+    cardGrid: {
+        display: 'flex',
+        flexWrap: 'wrap' as const,
+        justifyContent: 'center',
+        gap: '20px',
+    },
+    card: {
+        backgroundColor: '#ffffff',
+        color: '#000000',
+        borderRadius: '10px',
+        boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+        width: '300px',
+        padding: '20px',
+        transition: 'transform 0.3s ease',
+    },
+    cardHover: {
+        transform: 'scale(1.05)',
+    },
+    cardSubtitle: {
+        color: '#ccc',
+        marginBottom: '10px',
+        fontSize: '14px',
+    },
+    cardText: {
+        marginBottom: '20px',
+        fontSize: '16px',
+        lineHeight: '1.5',
+        color: '#282828',
+    },
+    button: {
+        width: '100%',
+        marginTop: '20px',
+        padding: '12px',
+        backgroundColor: '#ffffff',
+        borderColor: '#81c784',
+        color: '#81c784',
+        border: '2px solid #81c784',
+        borderRadius: '5px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        textAlign: 'center' as const,
+        cursor: 'pointer',
+        textDecoration: 'none', // Убираем подчеркивание
+        transition: 'all 0.3s ease',
+    },
+    buttonHover: {
+        backgroundColor: '#81c784',
+        color: '#ffffff',
+    },
+    buttonActive: {
+        backgroundColor: '#66bb6a',
+        color: '#ffffff',
+    },
+};
 
 const Vacancies: React.FC = () => {
     const jobs = [
@@ -12,9 +85,9 @@ const Vacancies: React.FC = () => {
     ];
 
     return (
-        <div className="container mt-5 vacancies-page">
+        <div style={styles.pageContainer}>
             <motion.h1
-                className="text-center mb-4"
+                style={styles.heading}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1 }}
@@ -23,7 +96,7 @@ const Vacancies: React.FC = () => {
             </motion.h1>
 
             <motion.p
-                className="text-center mb-5"
+                style={styles.subtitle}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.2 }}
@@ -31,25 +104,42 @@ const Vacancies: React.FC = () => {
                 Присоединяйтесь к нашей команде и помогайте нам создавать отличные продукты!
             </motion.p>
 
-            <div className="row">
+            <div style={styles.cardGrid}>
                 {jobs.map((job, index) => (
                     <motion.div
-                        className="col-md-4 mb-4"
                         key={index}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: index * 0.2 }}
+                        style={styles.card}
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = styles.cardHover.transform)}
+                        onMouseLeave={(e) => (e.currentTarget.style.transform = '')}
                     >
-                        <Card className="vacancy-card">
-                            <Card.Body>
-                                <Card.Title>{job.title}</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">{job.location}</Card.Subtitle>
-                                <Card.Text>{job.description}</Card.Text>
-                                <Link to={`/apply/${job.link}`}>
-                                    <Button variant="primary">Подать заявку</Button>
-                                </Link>
-                            </Card.Body>
-                        </Card>
+                        <Card.Body>
+                            <Card.Title>{job.title}</Card.Title>
+                            <Card.Subtitle style={styles.cardSubtitle}>{job.location}</Card.Subtitle>
+                            <Card.Text style={styles.cardText}>{job.description}</Card.Text>
+                            <Link
+                                to={`/apply/${job.link}`}
+                                style={styles.button}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                    e.currentTarget.style.color = styles.buttonHover.color;
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
+                                    e.currentTarget.style.color = styles.button.color;
+                                }}
+                                onMouseDown={(e) => {
+                                    e.currentTarget.style.backgroundColor = styles.buttonActive.backgroundColor;
+                                }}
+                                onMouseUp={(e) => {
+                                    e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                }}
+                            >
+                                Подать заявку
+                            </Link>
+                        </Card.Body>
                     </motion.div>
                 ))}
             </div>
