@@ -11,6 +11,7 @@ const Header: React.FC = () => {
     const totalItems = getTotalItems();
 
     const [expanded, setExpanded] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleSelect = () => setExpanded(false);
 
@@ -36,13 +37,10 @@ const Header: React.FC = () => {
             backgroundColor: '#ffffff',
             border: 'none',
         },
-        dropdownItem: {
-            color: '#000000',
-        },
-        dropdownItemHover: {
-            backgroundColor: '#444444',
-            color: '#f5a623',
-        },
+        dropdownItem: (isSelected: boolean) => ({
+            color: isSelected ? '#ffffff' : '#000000',
+            backgroundColor: isSelected ? '#66bb6a' : 'transparent',
+        }),
         navLink: {
             color: '#000',
             fontWeight: 500,
@@ -87,7 +85,11 @@ const Header: React.FC = () => {
                                                 as={Link}
                                                 to={`/category/${index + 1}`}
                                                 key={category}
-                                                style={styles.dropdownItem}
+                                                style={styles.dropdownItem(selectedCategory === category)}
+                                                onClick={() => {
+                                                    setSelectedCategory(category);
+                                                    setExpanded(false);
+                                                }}
                                             >
                                                 {category}
                                             </Dropdown.Item>
@@ -113,7 +115,7 @@ const Header: React.FC = () => {
                                                 as={Link}
                                                 to={item.link}
                                                 key={item.label}
-                                                style={styles.dropdownItem}
+                                                style={styles.dropdownItem(false)}
                                             >
                                                 {item.label}
                                             </Dropdown.Item>

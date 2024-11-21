@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFetchData } from '../hooks/auth/useFetchData';
 import { useUpdateUser } from '../hooks/auth/useUpdateUser';
 import { useLogout } from '../hooks/auth/useLogout';
-import { Container, Button, Row, Col, Card, Image, Modal, Alert, Table } from 'react-bootstrap';
+import { Container, Button, Row, Col, Card, Image, Alert, Table, Spinner } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import ChangePasswordModal from '../../src/components/modal/changePasswordModal.tsx';
 import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
@@ -51,10 +51,47 @@ const Account: React.FC = () => {
         window.location.href = '/auth';
     };
 
-    if (loading) return <p>Загрузка...</p>;
+    const buttonStyles = {
+        base: {
+            padding: '12px',
+            backgroundColor: '#ffffff',
+            borderColor: '#81c784',
+            color: '#81c784',
+            border: '2px solid #81c784',
+            borderRadius: '5px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s',
+        },
+        hover: {
+            backgroundColor: '#81c784',
+            color: '#ffffff',
+            borderColor: '#81c784',
+        },
+        active: {
+            backgroundColor: '#66bb6a',
+            color: '#ffffff',
+            borderColor: '#66bb6a',
+        },
+    };
+
+    if (loading) {
+        return (
+            <Container
+                style={{
+                    minHeight: '80vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Spinner animation="border" style={{ color: '#81c784' }} />
+            </Container>
+        );
+    }
 
     return (
-        <Container>
+        <Container style={{ minHeight: '80vh' }}>
             <motion.h2
                 className="mb-4"
                 initial={{ opacity: 0 }}
@@ -102,10 +139,24 @@ const Account: React.FC = () => {
                                 />
                                 <p>Имя пользователя: <strong>{user?.username}</strong></p>
                                 <p>Email: <strong>{user?.email}</strong></p>
-                                <Button variant="primary" onClick={() => setShowChangePasswordModal(true)}>
+                                <Button
+                                    style={buttonStyles.base}
+                                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
+                                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
+                                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                                    onClick={() => setShowChangePasswordModal(true)}
+                                >
                                     Сменить пароль
                                 </Button>
-                                <Button variant="primary" className="ms-2" onClick={() => setShowUploadAvatarModal(true)}>
+                                <Button
+                                    style={{ ...buttonStyles.base, marginLeft: '10px' }}
+                                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
+                                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
+                                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                                    onClick={() => setShowUploadAvatarModal(true)}
+                                >
                                     Изменить аватар
                                 </Button>
                             </Card.Body>
@@ -176,7 +227,15 @@ const Account: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 2 }}
             >
-                <Button variant="danger" className="mt-4" onClick={handleLogout}>
+                <Button
+                    style={buttonStyles.base}
+                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
+                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
+                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
+                    className="mt-4"
+                    onClick={handleLogout}
+                >
                     Выйти
                 </Button>
             </motion.div>
