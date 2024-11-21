@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import '../styles/reviews.css';
 
 const Reviews: React.FC = () => {
     const reviews = [
@@ -10,10 +9,45 @@ const Reviews: React.FC = () => {
         { author: 'Ольга Р.', content: 'Удобный сайт и доброжелательный персонал. Буду заказывать еще!', date: '28 ноября 2024' },
     ];
 
+    const styles = {
+        page: {
+            color: '#fff',
+        },
+        cardText: {
+            color: "#000",
+        },
+        card: {
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+            transition: 'transform 0.3s',
+        },
+        cardHover: {
+            transform: 'scale(1.05)',
+        },
+        subtitle: {
+            color: '#000000',
+            backgroundColor: 'transparent',
+            fontSize: '0.9rem',
+        },
+        footer: {
+            color: '#333',
+            backgroundColor: 'transparent',
+            fontSize: '0.9rem',
+        },
+        heading: {
+            fontWeight: 'bold',
+            color: '#81c784', // Зеленый цвет заголовка
+            textAlign: 'center' as const,
+            marginBottom: '1rem',
+        },
+    };
+
     return (
-        <div className="container mt-5 reviews-page">
+        <div className="container mt-5" style={styles.page}>
             <motion.h1
-                className="text-center mb-4"
+                style={styles.heading}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1 }}
@@ -30,11 +64,15 @@ const Reviews: React.FC = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: index * 0.2 }}
                     >
-                        <Card className="review-card">
+                        <Card
+                            style={styles.card}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = styles.cardHover.transform}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = ''}
+                        >
                             <Card.Body>
-                                <Card.Text>"{review.content}"</Card.Text>
-                                <Card.Subtitle className="mb-2 text-muted">- {review.author}</Card.Subtitle>
-                                <Card.Footer className="text-muted">{review.date}</Card.Footer>
+                                <Card.Text style={styles.cardText}>"{review.content}"</Card.Text>
+                                <Card.Subtitle style={styles.subtitle} className="mb-2">- {review.author}</Card.Subtitle>
+                                <Card.Footer style={styles.footer}>{review.date}</Card.Footer>
                             </Card.Body>
                         </Card>
                     </motion.div>

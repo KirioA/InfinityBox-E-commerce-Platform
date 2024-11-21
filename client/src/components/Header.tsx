@@ -51,6 +51,9 @@ const Header: React.FC = () => {
             fontSize: '0.85rem',
             padding: '0.2rem 0.6rem',
         },
+        toggleButton: (isExpanded: boolean) => ({
+            backgroundColor: isExpanded ? '#81c784' : '#81c784',
+        }),
     };
 
     return (
@@ -68,6 +71,7 @@ const Header: React.FC = () => {
                     <Navbar.Toggle
                         aria-controls="navbar-nav"
                         onClick={() => setExpanded(!expanded)}
+                        style={styles.toggleButton(expanded)}
                     />
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
