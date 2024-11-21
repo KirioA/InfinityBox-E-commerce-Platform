@@ -18,11 +18,11 @@ const News: React.FC = () => {
             padding: '20px',
         },
         pageTitle: {
-            textAlign: 'center',
+            textAlign: 'center' as const,
             marginBottom: '40px',
             fontSize: '2.5rem',
             fontWeight: 'bold',
-            color: '#f0e130',
+            color: '#81c784',
         },
         row: {
             display: 'flex',
@@ -30,10 +30,10 @@ const News: React.FC = () => {
             gap: '20px',
         },
         card: {
-            backgroundColor: '#2c2c2c',
-            color: '#e0e0e0',
+            backgroundColor: '#ffffff',
+            color: '#000000',
             borderRadius: '10px',
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
             transition: 'transform 0.3s',
         },
         cardHover: {
@@ -49,6 +49,7 @@ const News: React.FC = () => {
         },
         cardText: {
             fontSize: '1rem',
+            color: "#000",
         },
     };
 
