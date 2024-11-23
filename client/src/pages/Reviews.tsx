@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 const Reviews: React.FC = () => {
     const reviews = [
@@ -8,17 +9,22 @@ const Reviews: React.FC = () => {
         { author: 'Иван С.', content: 'Широкий ассортимент и отличные цены. Очень доволен покупкой!', date: '18 ноября 2024' },
         { author: 'Ольга Р.', content: 'Удобный сайт и доброжелательный персонал. Буду заказывать еще!', date: '28 ноября 2024' },
     ];
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
 
     const styles = {
         page: {
             color: '#fff',
         },
         cardText: {
-            color: "#000",
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
         },
         card: {
-            backgroundColor: '#ffffff',
-            color: '#000000',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
             borderRadius: '10px',
             boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
             transition: 'transform 0.3s',
@@ -27,12 +33,14 @@ const Reviews: React.FC = () => {
             transform: 'scale(1.05)',
         },
         subtitle: {
-            color: '#000000',
+            color: theme === 'light' ? '#000000' : '#afafaf',
+
             backgroundColor: 'transparent',
             fontSize: '0.9rem',
         },
         footer: {
-            color: '#333',
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
             backgroundColor: 'transparent',
             fontSize: '0.9rem',
         },

@@ -3,6 +3,7 @@ import { Button, ListGroup, Alert, Container } from 'react-bootstrap';
 import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 interface CartItem {
     id: string;
@@ -19,6 +20,8 @@ const Cart: React.FC = () => {
         updateQuantity: (id: string, quantity: number) => void;
     };
 
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
     const handleRemove = (productId: string) => {
         removeFromCart(productId);
     };
@@ -31,25 +34,26 @@ const Cart: React.FC = () => {
         }
     };
 
+    // Встроенные стили с учетом текущей темы
     const styles = {
         cartContainer: {
-            backgroundColor: '#ffffff',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#333333',
             padding: '20px',
             borderRadius: '10px',
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-            color: '#000000',
+            color: theme === 'light' ? '#000000' : '#ffffff',
             maxWidth: '800px',
             margin: '30px auto',
         },
         cartItem: {
-            backgroundColor: '#3a3a3a',
+            backgroundColor: theme === 'light' ? '#f9f9f9' : '#4a4a4a',
             borderRadius: '5px',
             marginBottom: '15px',
             padding: '15px',
             transition: 'background-color 0.3s ease',
         },
         cartItemHover: {
-            backgroundColor: '#4a4a4a',
+            backgroundColor: theme === 'light' ? '#e0e0e0' : '#5a5a5a',
         },
         dangerButton: {
             backgroundColor: '#f44336',
@@ -71,17 +75,17 @@ const Cart: React.FC = () => {
         },
         itemTitle: {
             margin: 0,
-            color: '#fff',
+            color: theme === 'light' ? '#333' : '#fff',
         },
         itemText: {
-            color: '#aaa',
+            color: theme === 'light' ? '#666' : '#ddd',
         },
         emptyCartAlert: {
             textAlign: 'center' as const,
         },
         ButtonToCatalog: {
             padding: 12,
-            backgroundColor: '#ffffff',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
             borderColor: '#81c784',
             color: '#81c784',
             border: '2px solid #81c784',

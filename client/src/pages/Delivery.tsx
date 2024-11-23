@@ -2,11 +2,15 @@ import React from 'react';
 import { Container, Row, Col, Accordion } from 'react-bootstrap';
 import { FaShippingFast, FaCreditCard, FaWallet, FaInfoCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 const Delivery: React.FC = () => {
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
+    // Стили, зависящие от текущей темы
     const styles = {
         pageContainer: {
-            color: '#000000',
+            color: theme === 'light' ? '#000000' : '#ffffff',
             padding: '40px',
         },
         heading1: {
@@ -19,10 +23,10 @@ const Delivery: React.FC = () => {
             color: '#81c784',
         },
         text: {
-            color: '#000000',
+            color: theme === 'light' ? '#000000' : '#ffffff',
         },
         listItem: {
-            color: '#000000',
+            color: theme === 'light' ? '#000000' : '#ffffff',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
@@ -31,10 +35,17 @@ const Delivery: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
+            color: theme === 'light' ? '#333333' : '#ffffff', // Для темной темы цвет текста будет белым
+        },
+        accordionBody: {
+            color: theme === 'light' ? '#000000' : '#ffffff',
+            backgroundColor: theme === 'light' ? '#f9f9f9' : '#444444', // Фон для тела аккордеона
+            padding: '10px',
+            borderRadius: '10px',
         },
         card: {
-            backgroundColor: '#ffffff',
-            color: '#000000',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+            color: theme === 'light' ? '#000000' : '#ffffff',
             borderRadius: '20px',
             boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
             width: '100%',
@@ -153,12 +164,12 @@ const Delivery: React.FC = () => {
                         <Accordion>
                             {Array.from({ length: 10 }, (_, index) => (
                                 <Accordion.Item eventKey={String(index)} key={index}>
-                                    <Accordion.Header>
-                                        <div style={styles.accordionHeader}>
+                                    <Accordion.Header style={styles.accordionHeader}>
+                                        <div>
                                             <FaInfoCircle /> Вопрос {index + 1}
                                         </div>
                                     </Accordion.Header>
-                                    <Accordion.Body style={styles.text}>
+                                    <Accordion.Body style={styles.accordionBody}>
                                         Ответ на вопрос {index + 1}. Это пример текста, который
                                         может быть полезен для этого вопроса.
                                     </Accordion.Body>

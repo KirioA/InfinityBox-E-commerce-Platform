@@ -1,10 +1,44 @@
+/* global.css */
+:root {
+    --background-light: #eeeeee;
+    --background-dark: #333333;
+    --text-light: #000000;
+    --text-dark: #ffffff;
+}
 
 body {
-    color: #000000; /* Светлый текст */
+    color: var(--text-light); /* Светлый текст по умолчанию */
     font-family: 'Arial', sans-serif;
-    background-color: #eeeeee;
+    background-color: var(--background-light); /* Светлый фон по умолчанию */
     margin: 0;
     padding: 0;
     padding-top: 100px; /* Добавлен отступ сверху, чтобы контент не перекрывался хедером */
 }
 
+body[data-theme='dark'] {
+    color: var(--text-dark);
+    background-color: var(--background-dark);
+
+}
+
+
+/* Для темной темы */
+.accordion-button[data-theme='dark']{
+    color: #ffffff; /* Цвет текста для темной темы */
+    background-color: #444444; /* Темный фон для кнопки */
+}
+
+/* Для светлой темы */
+body.light-mode .accordion-button {
+    color: #333333; /* Цвет текста для светлой темы */
+    background-color: #f9f9f9; /* Светлый фон для кнопки */
+}
+
+/* Состояние активной кнопки (открытого аккордеона) */
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #666666; /* Немного темнее для активного состояния */
+}
+
+body.light-mode .accordion-button:not(.collapsed) {
+    background-color: #e0e0e0; /* Немного темнее для активного состояния в светлой теме */
+}

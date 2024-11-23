@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import useSendFeedback from '../hooks/useSendFeedback';  // Импортируем хук
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 const Contacts: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Contacts: React.FC = () => {
     });
 
     const { sendFeedback, loading, error, success } = useSendFeedback();  // Используем хук
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -24,28 +26,27 @@ const Contacts: React.FC = () => {
         setFormData({ name: '', email: '', phone: '', message: '' });  // Очистка формы после отправки
     };
 
-    // Встроенные стили
+    // Встроенные стили с учетом текущей темы
     const containerStyle = {
-        backgroundColor: '#f5f5f5',
         paddingTop: '30px',
         paddingBottom: '30px',
     };
 
     const titleStyle = {
         fontWeight: 'bold',
-        color: '#81c784', // Зеленый цвет заголовка
+        color: theme === 'light' ? '#81c784' : '#a1e89f', // Светлый зеленый для светлой темы, более темный для темной
         textAlign: 'center',
         marginBottom: '40px',
     };
 
     const contactInfoStyle = {
-        color: '#333', // основной текст — черный
+        color: theme === 'light' ? '#333' : '#ddd', // Черный текст для светлой темы, светлый текст для темной
         fontSize: '1rem',
         lineHeight: 1.5,
     };
 
     const formStyle = {
-        backgroundColor: '#fff',
+        backgroundColor: theme === 'light' ? '#fff' : '#444444',
         borderRadius: '8px',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
         padding: '20px',
@@ -53,10 +54,12 @@ const Contacts: React.FC = () => {
 
     const inputStyle = {
         borderRadius: '4px',
-        border: '1px solid #ddd',
+        border: theme === 'light' ? '1px solid #ddd' : '1px solid #666',
         padding: '10px',
         width: '100%',
         fontSize: '1rem',
+        backgroundColor: theme === 'light' ? '#fff' : '#555',
+        color: theme === 'light' ? '#000' : '#fff',
     };
 
     const buttonStyle = {
@@ -91,7 +94,7 @@ const Contacts: React.FC = () => {
     };
 
     return (
-        <Container >
+        <Container style={containerStyle}>
             <motion.h1
                 style={titleStyle}
                 initial={{ opacity: 0 }}

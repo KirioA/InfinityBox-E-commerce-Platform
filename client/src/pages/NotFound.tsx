@@ -3,8 +3,13 @@ import React from 'react';
 import { Button, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
+
+
 
 const NotFound: React.FC = () => {
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
     const styles = {
         container: {
             display: 'flex',
@@ -25,7 +30,8 @@ const NotFound: React.FC = () => {
         },
         button: {
             padding: 12,
-            backgroundColor: '#ffffff',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+
             borderColor: '#81c784',
             color: '#81c784',
             border: '2px solid #81c784',
@@ -40,16 +46,22 @@ const NotFound: React.FC = () => {
             borderColor: '#81c784',
         },
         footer: {
-            marginTop: 'auto', // Это поможет прикрепить футер к низу страницы
+            marginTop: 'auto',
             padding: '20px',
             textAlign: 'center',
+        },
+        animated: {
+            transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
+        },
+        animatedHover: {
+            transform: 'scale(1.05)',
+            opacity: 0.9,
         },
     };
 
     return (
         <div style={styles.container}>
-            {/* Размещение Breadcrumbs в левой части экрана */}
-            <div style={styles.breadcrumbsContainer}>
+            <div style={{ ...styles.breadcrumbsContainer, ...styles.animated }}>
                 <Breadcrumbs
                     paths={[
                         { name: 'Главная страница', path: '/' },
@@ -58,30 +70,25 @@ const NotFound: React.FC = () => {
                 />
             </div>
 
-            {/* Контент по центру */}
-            <div style={styles.content}>
+            <div style={{ ...styles.content, ...styles.animated }}>
                 <h2 className="mt-5">Страница не найдена</h2>
                 <p>Упс, мы не нашли такую страницу. Возможно, вы ошиблись в адресе или такой страницы не существует.</p>
                 <Link to="/">
                     <Button
                         style={styles.button}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
-                            e.currentTarget.style.color = styles.buttonHover.color;
-                            e.currentTarget.style.borderColor = styles.buttonHover.borderColor;
+                            Object.assign(e.currentTarget.style, styles.buttonHover);
+                            Object.assign(e.currentTarget.parentElement, styles.animatedHover);
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
-                            e.currentTarget.style.color = styles.button.color;
-                            e.currentTarget.style.borderColor = styles.button.borderColor;
+                            Object.assign(e.currentTarget.style, styles.button);
+                            Object.assign(e.currentTarget.parentElement, styles.animated);
                         }}
                     >
                         Перейти на главную
                     </Button>
                 </Link>
             </div>
-
-
         </div>
     );
 };

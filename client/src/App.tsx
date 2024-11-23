@@ -22,9 +22,11 @@ import Reviews from './pages/Reviews';
 import Apply from './pages/Apply';
 import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';  // Импортируем компонент
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
     return (
+        <ThemeProvider>
         <AuthProvider> {/* Оборачиваем все приложение в AuthProvider */}
             <ProductProvider>
                 <CartProvider>
@@ -57,6 +59,7 @@ function App() {
                 </CartProvider>
             </ProductProvider>
         </AuthProvider>
+        </ThemeProvider>
     );
 }
 

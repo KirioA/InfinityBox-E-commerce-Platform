@@ -2,8 +2,13 @@ import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Home: React.FC = () => {
+
+    const { theme } = useTheme();
+
+
     const styles = {
         container: {
             padding: '60px 0',
@@ -19,13 +24,15 @@ const Home: React.FC = () => {
         description: {
             fontSize: '1.1rem',
             fontWeight: 600,
-            color: '#5e5e5e',
+            color: theme === 'light' ? '#333333' : '#ffffff',
+
             marginBottom: '30px',
             lineHeight: 1.6,
         },
         button: {
             padding: 12,
-            backgroundColor: '#ffffff',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+
             borderColor: '#81c784',
             color: '#81c784',
             border: '2px solid #81c784',
@@ -49,7 +56,8 @@ const Home: React.FC = () => {
         aboutDescription: {
             fontSize: '1.1rem',
             fontWeight: 600,
-            color: '#5e5e5e',
+            color: theme === 'light' ? '#333333' : '#ffffff',
+
             lineHeight: 1.6,
             marginBottom: '30px',
         },
