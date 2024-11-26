@@ -1,8 +1,11 @@
 import React from 'react';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 const About: React.FC = () => {
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
     const styles = {
         pageContainer: {
             display: 'flex',
@@ -13,7 +16,8 @@ const About: React.FC = () => {
             color: '#000000',
         },
         contentCard: {
-            backgroundColor: '#ffffff',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#333333',
+            color: theme === 'light' ? '#000000' : '#ffffff',
             borderRadius: '20px',
             padding: '30px',
             boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
@@ -28,7 +32,7 @@ const About: React.FC = () => {
             textAlign: 'left',
         },
         paragraph: {
-            color: '#333333',
+            color: theme === 'light' ? '#666' : '#ddd',
             fontSize: '16px',
             lineHeight: '1.6',
             marginBottom: '20px',

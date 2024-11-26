@@ -1,80 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Form, Button, Card, Container } from 'react-bootstrap';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        padding: '20px',
-    },
-    card: {
-        backgroundColor: '#ffffff',
-        color: '#000000',
-        borderRadius: '20px',
-        boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
-        width: '100%',
-        maxWidth: '500px',
-        padding: '20px',
-    },
-    title: {
-        textAlign: 'center' as const,
-        fontSize: '24px',
-        fontWeight: 'bold',
-        marginBottom: '20px',
-    },
-    subtitle: {
-        textAlign: 'center' as const,
-        color: '#7e7e7e',
-        fontSize: '16px',
-        marginBottom: '30px',
-    },
-    formGroup: {
-        marginBottom: '20px',
-    },
-    formControl: {
-        backgroundColor: '#ffffff',
-        color: '#333',
-        border: '1px solid #81c784',
-        borderRadius: '5px',
-        padding: '10px',
-    },
-    formControlFile: {
-        backgroundColor: '#ffffff',
-        color: '#333',
-        border: '1px solid #81c784',
-        borderRadius: '5px',
-        padding: '8px',
-    },
-    button: {
-        width: '100%',
-        padding: '12px',
-        backgroundColor: '#ffffff',
-        borderColor: '#81c784',
-        color: '#81c784',
-        border: '2px solid #81c784',
-        borderRadius: '5px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        textAlign: 'center' as const,
-        cursor: 'pointer',
-        textDecoration: 'none',
-        transition: 'all 0.3s ease',
-    },
-    buttonHover: {
-        backgroundColor: '#81c784',
-        color: '#ffffff',
-    },
-    buttonActive: {
-        backgroundColor: '#66bb6a',
-        color: '#ffffff',
-    },
-};
+
 
 const Apply: React.FC = () => {
     const { link } = useParams<{ link: string }>();
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
 
     // Сопоставляем `link` с названием вакансии
     const jobTitles: { [key: string]: string } = {
@@ -84,6 +17,78 @@ const Apply: React.FC = () => {
     };
 
     const jobTitle = jobTitles[link] || 'Вакансия';
+
+    const styles = {
+        container: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            padding: '20px',
+        },
+        card: {
+            backgroundColor: theme === 'light' ? '#ffffff' : '#333333',
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
+            borderRadius: '20px',
+            boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+            width: '100%',
+            maxWidth: '500px',
+            padding: '20px',
+        },
+        title: {
+            textAlign: 'center' as const,
+            fontSize: '24px',
+            fontWeight: 'bold',
+            marginBottom: '20px',
+        },
+        subtitle: {
+            textAlign: 'center' as const,
+            color: theme === 'light' ? '#666' : '#ddd',
+            fontSize: '16px',
+            marginBottom: '30px',
+        },
+        formGroup: {
+            marginBottom: '20px',
+        },
+        formControl: {
+            backgroundColor: theme === 'light' ? '#fff' : '#555',
+            color: theme === 'light' ? '#000' : '#fff',
+            border: theme === 'light' ? '1px solid #ddd' : '1px solid #666',
+            borderRadius: '5px',
+            padding: '10px',
+        },
+        formControlFile: {
+            backgroundColor: '#ffffff',
+            color: '#333',
+            border: '1px solid #81c784',
+            borderRadius: '5px',
+            padding: '8px',
+        },
+        button: {
+            width: '100%',
+            padding: '12px',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+            borderColor: '#81c784',
+            color: '#81c784',
+            border: '2px solid #81c784',
+            borderRadius: '5px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            textAlign: 'center' as const,
+            cursor: 'pointer',
+            textDecoration: 'none',
+            transition: 'all 0.3s ease',
+        },
+        buttonHover: {
+            backgroundColor: '#81c784',
+            color: '#ffffff',
+        },
+        buttonActive: {
+            backgroundColor: '#66bb6a',
+            color: '#ffffff',
+        },
+    };
 
     return (
         <div style={styles.container}>

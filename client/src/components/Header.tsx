@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Nav, Container, Dropdown, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { FiShoppingCart } from 'react-icons/fi';
-import { FaSun, FaMoon } from 'react-icons/fa'; // Импортируем иконки для солнца и луны
+import { FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
+import logo from '../img/logo.svg';
+import '../styles/global.css'; // Подключаем стили
 
 const Header: React.FC = () => {
     const { getTotalItems } = useCart();
     const { isAuthenticated, setIsAuthenticated } = useAuth();
     const totalItems = getTotalItems();
-    const { theme, toggleTheme } = useTheme(); // Используем контекст для темы
+    const { theme, toggleTheme } = useTheme();
 
     const [expanded, setExpanded] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleSelect = () => setExpanded(false);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        setIsAuthenticated(false);
-    };
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
-    // Применяем стили для разных тем
     const styles = {
         header: {
             position: 'fixed' as const,
@@ -41,22 +40,15 @@ const Header: React.FC = () => {
             color: theme === 'light' ? '#000' : '#fff',
             fontWeight: 500,
         },
-        toggleButton: (isExpanded: boolean) => ({
-            backgroundColor: isExpanded ? '#81c784' : '#81c784',
-        }),
-        dropdownMenu: {
-            backgroundColor: '#ffffff',
-            border: 'none',
-        },
         themeButton: {
-            backgroundColor: 'transparent', // Прозрачный фон для иконки
+            backgroundColor: 'transparent',
             border: 'none',
             padding: '10px',
             cursor: 'pointer',
         },
         themeIcon: {
-            color: theme === 'light' ? '#000' : '#fff', // Иконка в цвет текста
-        }
+            color: theme === 'light' ? '#000' : '#fff',
+        },
     };
 
     return (
@@ -64,12 +56,11 @@ const Header: React.FC = () => {
             <Navbar expand="lg" variant="dark" style={styles.navbar} expanded={expanded}>
                 <Container>
                     <Navbar.Brand as={Link} to="/">
-                        <img src="/path/to/logo.png" alt="logo" height="40" />
+                        <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
                     <Navbar.Toggle
                         aria-controls="navbar-nav"
                         onClick={() => setExpanded(!expanded)}
-                        style={styles.toggleButton(expanded)}
                     />
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
@@ -85,7 +76,6 @@ const Header: React.FC = () => {
                                                 as={Link}
                                                 to={`/category/${index + 1}`}
                                                 key={category}
-                                                style={styles.navLink}
                                             >
                                                 {category}
                                             </Dropdown.Item>
@@ -93,29 +83,28 @@ const Header: React.FC = () => {
                                     </Dropdown.Menu>
                                 </Dropdown>
                             </Nav.Item>
+
+                            {/* Компания */}
                             <Nav.Item className="mx-3">
                                 <Dropdown>
                                     <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Компания
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu style={styles.dropdownMenu}>
+                                    <Dropdown.Menu>
                                         {[
                                             { label: 'О компании', link: '/about' },
                                             { label: 'Вакансии', link: '/careers' },
                                             { label: 'Новости', link: '/news' },
                                             { label: 'Отзывы', link: '/reviews' },
                                         ].map((item) => (
-                                            <Dropdown.Item
-                                                as={Link}
-                                                to={item.link}
-                                                key={item.label}
-                                            >
+                                            <Dropdown.Item as={Link} to={item.link} key={item.label}>
                                                 {item.label}
                                             </Dropdown.Item>
                                         ))}
                                     </Dropdown.Menu>
                                 </Dropdown>
                             </Nav.Item>
+
                             {/* Прочие ссылки */}
                             <Nav.Item className="mx-3">
                                 <Link to="/delivery" className="nav-link" style={styles.navLink} onClick={handleSelect}>
@@ -141,7 +130,7 @@ const Header: React.FC = () => {
 
                             {/* Корзина */}
                             <Nav.Item className="mx-3">
-                                <Link to="/cart" className="nav-link d-flex align-items-center" style={styles.navLink}>
+                                <Link to="/cart" className="nav-link d-flex align-items-center" style={styles.navLink} onClick={handleSelect}>
                                     <FiShoppingCart size={24} />
                                     {totalItems > 0 && (
                                         <span className="badge bg-danger ms-2">
@@ -151,7 +140,7 @@ const Header: React.FC = () => {
                                 </Link>
                             </Nav.Item>
 
-                            {/* Кнопка смены темы с иконками */}
+                            {/* Кнопка смены темы */}
                             <Nav.Item className="mx-3">
                                 <button onClick={toggleTheme} style={styles.themeButton}>
                                     {theme === 'light' ? (

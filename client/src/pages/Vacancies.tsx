@@ -2,80 +2,9 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
-const styles = {
-    pageContainer: {
-        color: '#fff',
-        marginTop: '20px',
-        padding: '0 15px',
-    },
-    heading: {
-        textAlign: 'center' as const,
-        fontSize: '28px',
-        fontWeight: 'bold',
-        color: '#81c784', // Зеленый цвет заголовка
-        marginBottom: '40px',
-    },
-    subtitle: {
-        textAlign: 'center' as const,
-        marginBottom: '40px',
-        fontSize: '18px',
-        color: '#6c6c6c',
-    },
-    cardGrid: {
-        display: 'flex',
-        flexWrap: 'wrap' as const,
-        justifyContent: 'center',
-        gap: '20px',
-    },
-    card: {
-        backgroundColor: '#ffffff',
-        color: '#000000',
-        borderRadius: '10px',
-        boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
-        width: '300px',
-        padding: '20px',
-        transition: 'transform 0.3s ease',
-    },
-    cardHover: {
-        transform: 'scale(1.05)',
-    },
-    cardSubtitle: {
-        color: '#ccc',
-        marginBottom: '10px',
-        fontSize: '14px',
-    },
-    cardText: {
-        marginBottom: '20px',
-        fontSize: '16px',
-        lineHeight: '1.5',
-        color: '#282828',
-    },
-    button: {
-        width: '100%',
-        marginTop: '20px',
-        padding: '12px',
-        backgroundColor: '#ffffff',
-        borderColor: '#81c784',
-        color: '#81c784',
-        border: '2px solid #81c784',
-        borderRadius: '5px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        textAlign: 'center' as const,
-        cursor: 'pointer',
-        textDecoration: 'none', // Убираем подчеркивание
-        transition: 'all 0.3s ease',
-    },
-    buttonHover: {
-        backgroundColor: '#81c784',
-        color: '#ffffff',
-    },
-    buttonActive: {
-        backgroundColor: '#66bb6a',
-        color: '#ffffff',
-    },
-};
+
 
 const Vacancies: React.FC = () => {
     const jobs = [
@@ -83,6 +12,81 @@ const Vacancies: React.FC = () => {
         { link: 'marketolog', title: 'Маркетолог', location: 'Санкт-Петербург', description: 'Разработка и реализация маркетинговых стратегий для повышения узнаваемости бренда.' },
         { link: 'developer', title: 'Frontend-разработчик', location: 'Удаленно', description: 'Опытный разработчик с навыками в React и TypeScript для работы над клиентским интерфейсом.' },
     ];
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
+    const styles = {
+        pageContainer: {
+            color: '#fff',
+            marginTop: '20px',
+            padding: '0 15px',
+        },
+        heading: {
+            textAlign: 'center' as const,
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: '#81c784', // Зеленый цвет заголовка
+            marginBottom: '40px',
+        },
+        subtitle: {
+            textAlign: 'center' as const,
+            marginBottom: '40px',
+            fontSize: '18px',
+            color: theme === 'light' ? '#666' : '#ddd',
+        },
+        cardGrid: {
+            display: 'flex',
+            flexWrap: 'wrap' as const,
+            justifyContent: 'center',
+            gap: '20px',
+        },
+        card: {
+            backgroundColor: theme === 'light' ? '#ffffff' : '#333333',
+            color: theme === 'light' ? '#000000' : '#ffffff',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+            width: '300px',
+            padding: '20px',
+            transition: 'transform 0.3s ease',
+        },
+        cardHover: {
+            transform: 'scale(1.05)',
+        },
+        cardSubtitle: {
+            color: '#ccc',
+            marginBottom: '10px',
+            fontSize: '14px',
+        },
+        cardText: {
+            marginBottom: '20px',
+            fontSize: '16px',
+            lineHeight: '1.5',
+            color: theme === 'light' ? '#666' : '#ddd',
+        },
+        button: {
+            width: '100%',
+            marginTop: '20px',
+            padding: '12px',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+            borderColor: '#81c784',
+            color: '#81c784',
+            border: '2px solid #81c784',
+            borderRadius: '5px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            textAlign: 'center' as const,
+            cursor: 'pointer',
+            textDecoration: 'none', // Убираем подчеркивание
+            transition: 'all 0.3s ease',
+        },
+        buttonHover: {
+            backgroundColor: '#81c784',
+            color: '#ffffff',
+        },
+        buttonActive: {
+            backgroundColor: '#66bb6a',
+            color: '#ffffff',
+        },
+    };
 
     return (
         <div style={styles.pageContainer}>

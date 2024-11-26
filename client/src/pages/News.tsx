@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
 
 const News: React.FC = () => {
@@ -9,6 +10,8 @@ const News: React.FC = () => {
         { title: 'Новогодняя распродажа', date: '10 декабря 2024', content: 'Скоро стартует новогодняя распродажа с огромными скидками на всю продукцию!' },
         { title: 'Новая коллекция подарков', date: '20 января 2025', content: 'Мы добавили новую коллекцию уникальных подарков для всех возрастов!' },
     ];
+    const { theme } = useTheme(); // Используем контекст для получения текущей темы
+
 
     // Встроенные стили
     const styles = {
@@ -30,8 +33,10 @@ const News: React.FC = () => {
             gap: '20px',
         },
         card: {
-            backgroundColor: '#ffffff',
-            color: '#000000',
+            backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
+
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
             borderRadius: '10px',
             boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
             transition: 'transform 0.3s',
@@ -44,12 +49,14 @@ const News: React.FC = () => {
             fontWeight: 'bold',
         },
         cardSubtitle: {
-            color: '#bdbdbd',
+            color: theme === 'light' ? '#000000' : '#afafaf',
+
             marginBottom: '10px',
         },
         cardText: {
             fontSize: '1rem',
-            color: "#000",
+            color: theme === 'light' ? '#000000' : '#ffffff',
+
         },
     };
 

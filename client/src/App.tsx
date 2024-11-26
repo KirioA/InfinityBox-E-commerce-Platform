@@ -23,6 +23,8 @@ import Apply from './pages/Apply';
 import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';  // Импортируем компонент
 import { ThemeProvider } from './contexts/ThemeContext';
+import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import EditUser from "./pages/admin/EditUser.tsx";
 
 function App() {
     return (
@@ -52,6 +54,8 @@ function App() {
                                 <Route path="/reviews" element={<Reviews />} />
                                 <Route path="/apply/:jobTitle" element={<Apply />} />
                                 <Route path="*" element={<NotFound />} />
+                                <Route path="/admin" element={<AdminDashboard />} />
+                                <Route path="/admin/edit-user/:userId" element={<EditUser />} />
                             </Routes>
                         </div>
                         <Footer />

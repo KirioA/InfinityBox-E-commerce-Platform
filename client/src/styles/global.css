@@ -4,6 +4,10 @@
     --background-dark: #333333;
     --text-light: #000000;
     --text-dark: #ffffff;
+    --skeleton-base-color: #e0e0e0; /* Светлый цвет для светлой темы */
+    --skeleton-highlight-color: #f4f4f4;
+    --dropdown-bg: #ffffff;
+    --dropdown-text: #000000;
 }
 
 body {
@@ -41,4 +45,39 @@ body.dark-mode .accordion-button:not(.collapsed) {
 
 body.light-mode .accordion-button:not(.collapsed) {
     background-color: #e0e0e0; /* Немного темнее для активного состояния в светлой теме */
+}
+
+
+
+body.dark-theme {
+    --skeleton-base-color: #3a3a3a; /* Темный цвет для темной темы */
+    --skeleton-highlight-color: #5a5a5a; /* Подсветка для темной темы */
+}
+
+.react-loading-skeleton {
+    --base-color: var(--skeleton-base-color);
+    --highlight-color: var(--skeleton-highlight-color);
+}
+
+[data-theme="dark"] {
+    --dropdown-bg: #333333;
+    --dropdown-text: #ffffff;
+}
+
+/* Стили для выпадающего меню */
+.dropdown-menu {
+    background-color: var(--dropdown-bg) !important; /* Используем переменную для темы */
+    color: var(--dropdown-text) !important; /* Цвет текста */
+    border: none;
+}
+
+/* Стили для элементов меню */
+.dropdown-item {
+    color: var(--dropdown-text) !important;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: #81c784 !important;
+    color: #fff !important;
 }
