@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 
 import { dbGetConnection } from '../../database.js';
 
@@ -8,16 +9,20 @@ const userFetchData = async (req: Request, res: Response) => {
     try {
         const { id } = req.user;
 
+        // Преобразуем строковый id в ObjectId
+        const objectId = new ObjectId(id);
+
         const db = await dbGetConnection();
         const usersCollection = db.collection('users');
 
-        const user = await usersCollection.findOne({ _id: id });
+        const user = await usersCollection.findOne({ _id: objectId });
 
         if (!user) {
-            return;
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
+        const userAddress = user.address || {}
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: user.name ?? "None",
             mail: user.mail ?? "None",
@@ -29,15 +34,15 @@ const userFetchData = async (req: Request, res: Response) => {
             createdAt: user.createdAt ?? "None",
             profilePicture: user.profilePicture ?? "None",
             address: {
-                street: user.address.street ?? "None",
-                city: user.address.city ?? "None",
-                postalCode: user.address.postalCode ?? "None",
-                country: user.address.country ?? "None",
+                street: userAddress.street ?? "None",
+                city: userAddress.city ?? "None",
+                postalCode: userAddress.postalCode ?? "None",
+                country: userAddress.country ?? "None",
             }
         });
     } catch (error) {
-        console.error('[ERROR][userRegister]: ', error);
-        return res.status(500).json({success: false, message: 'Ошибка сервера!'});
+        console.error('[ERROR][userFetchData]: ', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 }
 

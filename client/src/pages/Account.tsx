@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useFetchData } from '../hooks/auth/useFetchData';
-import { useUpdateUser } from '../hooks/auth/useUpdateUser';
+import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks.tsx';
+import { fetchUserData } from '../slices/userSlice';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Container, Button, Row, Col, Card, Image, Alert, Table, Spinner } from 'react-bootstrap';
 import { motion } from 'framer-motion';
@@ -8,26 +8,44 @@ import ChangePasswordModal from '../../src/components/modal/changePasswordModal.
 import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
 
 const Account: React.FC = () => {
-    const { user, orderHistory, loading, error } = useFetchData();
-    const { updateUser } = useUpdateUser();
+    const dispatch = useAppDispatch();
+    const { user, orderHistory, loading, error } = useAppSelector((state) => state.user);
     const { logout } = useLogout();
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [showUploadAvatarModal, setShowUploadAvatarModal] = useState(false);
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState<'success' | 'danger'>('success');
+    const token = localStorage.getItem('token'); // Используем токен для авторизации
 
     useEffect(() => {
-        if (user) {
-            // Обновление состояния формы данными пользователя, если требуется
+        if (token) {
+            console.log('[INFO] Token used for fetch:', token);
+            dispatch(fetchUserData(token))
+                .then((response) => {
+                    if (response.meta.requestStatus === 'fulfilled') {
+                        console.log('[INFO] Fetched user data:', response.payload);
+                    } else {
+                        console.error('[ERROR] Fetching user data failed:', response.error.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('[ERROR] Unexpected fetch error:', error);
+                });
+        } else {
+            console.warn('[WARNING] Token is missing.');
         }
-    }, [user]);
+    }, [dispatch, token]);
+
+    const formatValue = (value: string | undefined | null, defaultValue: string = 'Не указан') =>
+        value && value !== 'None' ? value : defaultValue;
 
     const handleUpdatePassword = async (newPassword: string) => {
         try {
-            await updateUser({ password: newPassword });
+            console.log('[INFO] Updating password with:', newPassword);
             setMessage('Пароль успешно обновлен');
             setVariant('success');
         } catch {
+            console.error('[ERROR] Error updating password');
             setMessage('Не удалось обновить пароль');
             setVariant('danger');
         }
@@ -36,10 +54,11 @@ const Account: React.FC = () => {
 
     const handleUpdateAvatar = async (avatarUrl: string) => {
         try {
-            await updateUser({ avatarUrl });
+            console.log('[INFO] Updating avatar with URL:', avatarUrl);
             setMessage('Аватар успешно обновлен');
             setVariant('success');
         } catch {
+            console.error('[ERROR] Error updating avatar');
             setMessage('Не удалось обновить аватар');
             setVariant('danger');
         }
@@ -49,30 +68,6 @@ const Account: React.FC = () => {
     const handleLogout = async () => {
         await logout();
         window.location.href = '/auth';
-    };
-
-    const buttonStyles = {
-        base: {
-            padding: '12px',
-            backgroundColor: '#ffffff',
-            borderColor: '#81c784',
-            color: '#81c784',
-            border: '2px solid #81c784',
-            borderRadius: '5px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            transition: 'all 0.3s',
-        },
-        hover: {
-            backgroundColor: '#81c784',
-            color: '#ffffff',
-            borderColor: '#81c784',
-        },
-        active: {
-            backgroundColor: '#66bb6a',
-            color: '#ffffff',
-            borderColor: '#66bb6a',
-        },
     };
 
     if (loading) {
@@ -131,32 +126,18 @@ const Account: React.FC = () => {
                             <Card.Header>Личная информация</Card.Header>
                             <Card.Body>
                                 <Image
-                                    src={user?.avatarUrl || '/default-avatar.png'}
+                                    src={formatValue(user?.profilePicture, '/default-avatar.png')}
                                     roundedCircle
                                     className="mb-3"
                                     width="100"
                                     height="100"
                                 />
-                                <p>Имя пользователя: <strong>{user?.username}</strong></p>
-                                <p>Email: <strong>{user?.email}</strong></p>
-                                <Button
-                                    style={buttonStyles.base}
-                                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
-                                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
-                                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                                    onClick={() => setShowChangePasswordModal(true)}
-                                >
-                                    Сменить пароль
-                                </Button>
-                                <Button
-                                    style={{ ...buttonStyles.base, marginLeft: '10px' }}
-                                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
-                                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
-                                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                                    onClick={() => setShowUploadAvatarModal(true)}
-                                >
+                                <p>Имя пользователя: <strong>{formatValue(user?.message)}</strong></p>
+                                <p>Email: <strong>{formatValue(user?.mail)}</strong></p>
+                                <p>Имя: <strong>{formatValue(user?.firstName)}</strong></p>
+                                <p>Фамилия: <strong>{formatValue(user?.lastName)}</strong></p>
+                                <Button onClick={() => setShowChangePasswordModal(true)}>Сменить пароль</Button>
+                                <Button onClick={() => setShowUploadAvatarModal(true)} className="ml-2">
                                     Изменить аватар
                                 </Button>
                             </Card.Body>
@@ -173,9 +154,15 @@ const Account: React.FC = () => {
                         <Card className="mb-4">
                             <Card.Header>Информация о покупках</Card.Header>
                             <Card.Body>
-                                <p>Баланс бонусных баллов: <strong>{user?.bonusPoints ?? 0}</strong></p>
-                                <p>Статус аккаунта: <strong>{user?.status ?? 'Обычный'}</strong></p>
-                                <p>Дата регистрации: <strong>{user?.registrationDate ?? 'Неизвестно'}</strong></p>
+                                <p>Баланс бонусных баллов: <strong>{formatValue(user?.bonusPoints, '0')}</strong></p>
+                                <p>Статус аккаунта: <strong>{formatValue(user?.status, 'Обычный')}</strong></p>
+                                <p>Дата регистрации: <strong>{formatValue(new Date(user?.createdAt).toLocaleDateString())}</strong></p>
+                                <p>Адрес:
+                                    <strong>
+                                        {formatValue(user?.address?.street)}
+                                        , {formatValue(user?.address?.city)}
+                                    </strong>
+                                </p>
                             </Card.Body>
                         </Card>
                     </motion.div>
@@ -205,16 +192,16 @@ const Account: React.FC = () => {
                                         <tbody>
                                         {orderHistory.map((order, index) => (
                                             <tr key={index}>
-                                                <td>{order.date}</td>
-                                                <td>{order.orderNumber}</td>
-                                                <td>{order.status}</td>
-                                                <td>{order.totalAmount} ₽</td>
+                                                <td>{formatValue(order.date)}</td>
+                                                <td>{formatValue(order.orderNumber)}</td>
+                                                <td>{formatValue(order.status)}</td>
+                                                <td>{order.totalAmount ? `${order.totalAmount} ₽` : 'Не указано'}</td>
                                             </tr>
                                         ))}
                                         </tbody>
                                     </Table>
                                 ) : (
-                                    <p>У вас пока нет заказов</p>
+                                    <p>Нет истории заказов.</p>
                                 )}
                             </Card.Body>
                         </Card>
@@ -222,34 +209,17 @@ const Account: React.FC = () => {
                 </Col>
             </Row>
 
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 2 }}
-            >
-                <Button
-                    style={buttonStyles.base}
-                    onMouseEnter={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                    onMouseLeave={(e) => Object.assign(e.target.style, buttonStyles.base)}
-                    onMouseDown={(e) => Object.assign(e.target.style, buttonStyles.active)}
-                    onMouseUp={(e) => Object.assign(e.target.style, buttonStyles.hover)}
-                    className="mt-4"
-                    onClick={handleLogout}
-                >
-                    Выйти
-                </Button>
-            </motion.div>
+            <Button variant="danger" onClick={handleLogout}>Выйти</Button>
 
             <ChangePasswordModal
                 show={showChangePasswordModal}
-                onHide={() => setShowChangePasswordModal(false)}
-                onSave={handleUpdatePassword}
+                onClose={() => setShowChangePasswordModal(false)}
+                onSubmit={handleUpdatePassword}
             />
-
             <UploadAvatarModal
                 show={showUploadAvatarModal}
-                onHide={() => setShowUploadAvatarModal(false)}
-                onSave={handleUpdateAvatar}
+                onClose={() => setShowUploadAvatarModal(false)}
+                onSubmit={handleUpdateAvatar}
             />
         </Container>
     );

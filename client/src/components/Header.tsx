@@ -60,6 +60,7 @@ const Header: React.FC = () => {
                         <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
                     <Navbar.Toggle
+                        className={styles.navbar}
                         aria-controls="navbar-nav"
                         onClick={() => setExpanded(!expanded)}
                     />

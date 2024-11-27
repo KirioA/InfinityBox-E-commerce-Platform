@@ -41,9 +41,10 @@ app.get("/api", (req, res) => {
 app.post('/api/v1/user/register', userRegister);
 app.post('/api/v1/user/login', userLogin);
 app.post('/api/v1/user/check', userCheck);
+app.get('/api/v1/user/fetchdata', authenticateJWT, userFetchData);
 app.post('/api/v1/user/update', authenticateJWT, userUpdate);
 
-app.get('/api/v1/user/fetchdata', authenticateJWT, userFetchData);
+
 
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);
