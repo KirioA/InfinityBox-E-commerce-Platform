@@ -1,32 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLogin } from '../hooks/auth/useLogin';
-import { useRegister } from '../hooks/auth/useRegister';
-import { useValidation } from '../hooks/useValidation';
+import { useAppSelector, useAppDispatch } from '../hooks/reduxHooks';
+import { login, register, clearError } from '../slices/authSlice';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
 import ErrorAlert from '../components/ErrorAlert';
 import { FaGoogle, FaTelegramPlane } from 'react-icons/fa';
-import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Auth = () => {
+const Auth: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [isLogin, setIsLogin] = useState<boolean>(true);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [isHovered, setIsHovered] = useState(false);
     const [isActive, setIsActive] = useState(false);
+
     const { theme } = useTheme();
-
-    const { login, error: loginError } = useLogin();
-    const { register, error: registerError } = useRegister();
-    const { message, variant, validateInput } = useValidation(username, password, confirmPassword, email, isLogin);
+    const { isAuthenticated, error, loading } = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -34,52 +27,24 @@ const Auth = () => {
         }
     }, [isAuthenticated, navigate]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (validateInput()) {
-            if (isLogin) {
-                try {
-                    const success = await login(username, password);
-                    if (success) {
-                        setSuccessMessage('Вы успешно вошли в аккаунт!');
-                        setError(null);
-
-                        setTimeout(() => {
-                            navigate('/account');
-                        }, 2000);
-                    } else {
-                        setError(loginError || 'Ошибка при входе');
-                    }
-                } catch {
-                    setError('Не удалось выполнить вход');
-                }
-            } else {
-                const registrationSuccess = await register(username, password, email);
-                if (!registerError && registrationSuccess) {
-                    setIsLogin(true);
-                    setSuccessMessage('Вы успешно зарегистрированы, теперь войдите в аккаунт');
-                    setUsername('');
-                    setPassword('');
-                    setConfirmPassword('');
-                    setEmail('');
-                    setError(null);
-                } else {
-                    setError(registerError || 'Ошибка при регистрации');
-                }
+        if (isLogin) {
+            dispatch(login({ username, password }));
+        } else {
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают');
+                return;
             }
+            dispatch(register({ username, password, email }));
         }
     };
 
     const toggleLoginMode = () => {
         setIsLogin((prevState) => !prevState);
-        setSuccessMessage(null);
-        setError(null);
+        dispatch(clearError());
     };
-
-    useEffect(() => {
-        setError(null);
-    }, [isLogin]);
 
     const styles = {
         authContainer: {
@@ -96,13 +61,6 @@ const Auth = () => {
             backgroundColor: theme === 'light' ? '#ffffff' : '#444444',
             color: theme === 'light' ? '#000000' : '#ffffff',
             boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
-        },
-        authFormTitle: {
-            textAlign: 'center',
-            marginBottom: 20,
-            fontSize: 24,
-            fontWeight: 'bold',
-            color: theme === 'light' ? '#000000' : '#ffffff',
         },
         authFormInput: {
             backgroundColor: theme === 'light' ? '#ffffff' : '#666666',
@@ -142,10 +100,6 @@ const Auth = () => {
             marginTop: 15,
             textDecoration: 'none',
         },
-        alternativeLogin: {
-            marginTop: 30,
-            textAlign: 'center',
-        },
         socialIcons: {
             display: 'flex',
             justifyContent: 'center',
@@ -177,14 +131,15 @@ const Auth = () => {
             transition: 'all 0.3s',
         },
     };
+
     return (
         <div style={styles.authContainer}>
             <Card style={styles.authFormCard}>
                 <Card.Body>
-                    <h2 style={styles.authFormTitle}>{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
+                    <h2>{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
 
-                    <ErrorAlert message={successMessage || error} />
-                    {message && <Alert variant={variant}>{message}</Alert>}
+                    {error && <ErrorAlert message={error} />}
+                    {loading && <Alert variant="info">Загрузка...</Alert>}
 
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
@@ -246,6 +201,7 @@ const Auth = () => {
                             onMouseLeave={() => setIsHovered(false)}
                             onMouseDown={() => setIsActive(true)}
                             onMouseUp={() => setIsActive(false)}
+                            disabled={loading}
                         >
                             {isLogin ? 'Войти' : 'Зарегистрироваться'}
                         </Button>
@@ -255,78 +211,18 @@ const Auth = () => {
                         </Button>
                     </Form>
 
-                    <div style={styles.alternativeLogin}>
-                        <p>Или войдите с помощью:</p>
-                        <div style={styles.socialIcons}>
-                            <Button variant="outline-danger" style={styles.googleBtn}>
-                                <FaGoogle size={24} />
-                            </Button>
-                            <Button variant="outline-primary" style={styles.telegramBtn}>
-                                <FaTelegramPlane size={24} />
-                            </Button>
-                        </div>
+                    <div style={styles.socialIcons}>
+                        <Button style={styles.googleBtn}>
+                            <FaGoogle size={24} />
+                        </Button>
+                        <Button style={styles.telegramBtn}>
+                            <FaTelegramPlane size={24} />
+                        </Button>
                     </div>
                 </Card.Body>
             </Card>
         </div>
     );
-};
-
-const styles = {
-
-
-    authFormButtonHover: {
-        backgroundColor: '#81c784', // Цвет фона при наведении
-        color: '#ffffff', // Цвет текста при наведении
-        borderColor: '#81c784', // Обводка не меняется
-    },
-    authFormButtonActive: {
-        backgroundColor: '#66bb6a', // Цвет фона при нажатии
-        color: '#ffffff', // Цвет текста при нажатии
-        borderColor: '#66bb6a', // Обводка меняется на более темный зеленый
-    },
-    authFormToggleLink: {
-        display: 'block',
-        textAlign: 'center',
-        color: '#bdbdbd', // Светло-черный цвет
-        fontSize: 14,
-        marginTop: 15,
-        textDecoration: 'none',
-    },
-    alternativeLogin: {
-        marginTop: 30,
-        textAlign: 'center',
-    },
-    socialIcons: {
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 20,
-        marginTop: 20,
-    },
-    googleBtn: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
-        backgroundColor: '#db4437', // Красный фон для Google
-        border: 'none',
-        color: 'white',
-        transition: 'all 0.3s',
-    },
-    telegramBtn: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
-        backgroundColor: '#0088cc', // Синий фон для Telegram
-        border: 'none',
-        color: 'white',
-        transition: 'all 0.3s',
-    },
 };
 
 export default Auth;

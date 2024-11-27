@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { FiShoppingCart } from 'react-icons/fi';
 import { FaSun, FaMoon } from 'react-icons/fa';
-import { useTheme } from '../contexts/ThemeContext';
+import { useAppSelector } from '../hooks/reduxHooks.tsx';
 import logo from '../img/logo.svg';
-import '../styles/global.css'; // Подключаем стили
+import '../styles/global.css';
 
 const Header: React.FC = () => {
     const { getTotalItems } = useCart();
-    const { isAuthenticated, setIsAuthenticated } = useAuth();
     const totalItems = getTotalItems();
     const { theme, toggleTheme } = useTheme();
+
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
     const [expanded, setExpanded] = useState(false);
 

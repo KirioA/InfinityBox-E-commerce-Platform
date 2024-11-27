@@ -1,12 +1,17 @@
 // components/PrivateRoute.tsx
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAppSelector } from '../hooks/reduxHooks.tsx';
 
-const PrivateRoute = ({ element }: { element: JSX.Element }) => {
-    const { isAuthenticated, loading, error } = useAuth();
+interface PrivateRouteProps {
+    element: JSX.Element;
+}
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
+    const { isAuthenticated, loading, error } = useAppSelector((state) => state.auth);
 
     if (loading) {
-        return <div>Loading...</div>; // Показываем индикатор загрузки
+        return <div>Loading...</div>; // Индикатор загрузки
     }
 
     if (error) {
@@ -18,7 +23,7 @@ const PrivateRoute = ({ element }: { element: JSX.Element }) => {
         return <Navigate to="/auth" replace />;
     }
 
-    return element; // Показываем защищённую страницу
+    return element; // Рендер защищённой страницы
 };
 
 export default PrivateRoute;
