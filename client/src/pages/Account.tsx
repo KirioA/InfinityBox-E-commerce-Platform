@@ -21,6 +21,84 @@ const Account: React.FC = () => {
     const token = localStorage.getItem('token'); // Используем токен для авторизации
     const avatarUrl = user?.profilePicture || '/default-avatar.png';
 
+    const [isHovered, setIsHovered] = useState(false);
+    const [isActive, setIsActive] = useState(false);
+
+    const createButtonState = () => ({
+        isHovered: false,
+        isActive: false,
+    });
+
+
+    const styles = {
+        container: {
+            minHeight: '80vh',
+            padding: '20px',
+        },
+        card: {
+            borderRadius: '15px',
+            boxShadow: '0 4px 8px rgba(119, 119, 119, 0.7)',
+            marginBottom: '20px',
+            border: 'none',
+        },
+        cardHeader: {
+            backgroundColor: '#f8f9fa',
+            borderBottom: '2px solid #81c784',
+            borderRadius: '15px 15px 0 0',
+            fontWeight: 'bold',
+            color: '#2e7d32',
+        },
+        button: {
+            backgroundColor: '#ffffff',
+            borderColor: '#81c784',
+            color: '#81c784',
+            border: '2px solid #81c784',
+            borderRadius: '5px',
+            padding: '8px 16px',
+            margin: '5px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+        },
+        buttonHover: {
+            backgroundColor: '#81c784',
+            color: '#ffffff',
+        },
+        buttonActive: {
+            backgroundColor: '#66bb6a',
+            color: '#ffffff',
+            borderColor: '#66bb6a',
+        },
+        logoutButton: {
+            backgroundColor: '#ffffff',
+            borderColor: '#f44336',
+            color: '#f44336',
+            border: '2px solid #f44336',
+            borderRadius: '5px',
+            padding: '8px 16px',
+            margin: '5px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+        },
+        logoutButtonHover: {
+            backgroundColor: '#f44336',
+            color: '#ffffff',
+        },
+        profileImage: {
+            width: '100px',
+            height: '100px',
+            objectFit: 'cover',
+            border: '3px solid #81c784',
+            padding: '3px',
+        },
+        table: {
+            borderRadius: '10px',
+            overflow: 'hidden',
+        },
+        tableHeader: {
+            backgroundColor: '#81c784',
+            color: '#ffffff',
+        },
+    };
 
 
     useEffect(() => {
@@ -94,30 +172,30 @@ const Account: React.FC = () => {
     }
 
     return (
-        <Container style={{ minHeight: '80vh' }}>
+        <Container style={styles.container}>
             <motion.h2
-                className="mb-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
+                style={styles.title}
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                transition={{duration: 1}}
             >
                 Личный кабинет
             </motion.h2>
 
             {message && (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.2 }}
+                    initial={{opacity: 0}}
+                    animate={{opacity: 1}}
+                    transition={{duration: 1.2}}
                 >
                     <Alert variant={variant}>{message}</Alert>
                 </motion.div>
             )}
             {error && (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.2 }}
+                    initial={{opacity: 0}}
+                    animate={{opacity: 1}}
+                    transition={{duration: 1.2}}
                 >
                     <Alert variant="danger">{error}</Alert>
                 </motion.div>
@@ -126,27 +204,71 @@ const Account: React.FC = () => {
             <Row>
                 <Col md={6}>
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.4 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{duration: 1.4}}
                     >
-                        <Card className="mb-4">
-                            <Card.Header>Личная информация</Card.Header>
+                        <Card style={styles.card}>
+                            <Card.Header style={styles.cardHeader}>Личная информация</Card.Header>
                             <Card.Body>
                                 <Image
-                                    src={"http://localhost:3000" +avatarUrl}
+                                    src={"http://localhost:3000" + avatarUrl}
                                     roundedCircle
                                     className="mb-3"
-                                    width="100"
-                                    height="100"
+                                    style={styles.profileImage}
                                 />
 
                                 <p>Имя пользователя: <strong>{formatValue(user?.message)}</strong></p>
                                 <p>Email: <strong>{formatValue(user?.mail)}</strong></p>
                                 <p>Имя: <strong>{formatValue(user?.firstName)}</strong></p>
                                 <p>Фамилия: <strong>{formatValue(user?.lastName)}</strong></p>
-                                <Button onClick={() => setShowChangePasswordModal(true)}>Сменить пароль</Button>
-                                <Button onClick={() => setShowUploadAvatarModal(true)} className="ml-2">
+                                <Button
+                                    style={{
+                                        ...styles.button,
+                                        ...(isHovered ? styles.buttonHover : {}),
+                                        ...(isActive ? styles.buttonActive : {})
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                        e.currentTarget.style.color = styles.buttonHover.color;
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
+                                        e.currentTarget.style.color = styles.button.color;
+                                    }}
+                                    onMouseDown={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonActive.backgroundColor;
+                                    }}
+                                    onMouseUp={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                    }}
+                                    onClick={() => setShowChangePasswordModal(true)}
+                                >
+                                    Сменить пароль
+                                </Button>
+                                <Button
+                                    style={{
+                                        ...styles.button,
+                                        ...(isHovered ? styles.buttonHover : {}),
+                                        ...(isActive ? styles.buttonActive : {})
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                        e.currentTarget.style.color = styles.buttonHover.color;
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
+                                        e.currentTarget.style.color = styles.button.color;
+                                    }}
+                                    onMouseDown={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonActive.backgroundColor;
+                                    }}
+                                    onMouseUp={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                    }}
+                                    onClick={() => setShowUploadAvatarModal(true)}
+                                    className="ml-2"
+                                >
                                     Изменить аватар
                                 </Button>
                             </Card.Body>
@@ -156,16 +278,18 @@ const Account: React.FC = () => {
 
                 <Col md={6}>
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.6 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{duration: 1.6}}
                     >
                         <Card className="mb-4">
-                            <Card.Header>Информация о покупках</Card.Header>
+                            <Card.Header style={styles.cardHeader}>Информация о покупках</Card.Header>
                             <Card.Body>
                                 <p>Баланс бонусных баллов: <strong>{formatValue(user?.bonusPoints, '0')}</strong></p>
                                 <p>Статус аккаунта: <strong>{formatValue(user?.status, 'Обычный')}</strong></p>
-                                <p>Дата регистрации: <strong>{formatValue(new Date(user?.createdAt).toLocaleDateString())}</strong></p>
+                                <p>Дата
+                                    регистрации: <strong>{formatValue(new Date(user?.createdAt).toLocaleDateString())}</strong>
+                                </p>
                                 <p>Адрес:
                                     <strong>
                                         {formatValue(user?.address?.street)}
@@ -181,12 +305,12 @@ const Account: React.FC = () => {
             <Row>
                 <Col>
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.8 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{duration: 1.8}}
                     >
                         <Card className="mb-4">
-                            <Card.Header>История заказов</Card.Header>
+                            <Card.Header style={styles.cardHeader}>История заказов</Card.Header>
                             <Card.Body>
                                 {orderHistory && orderHistory.length > 0 ? (
                                     <Table striped bordered hover responsive>
@@ -216,9 +340,33 @@ const Account: React.FC = () => {
                         </Card>
                     </motion.div>
                 </Col>
+
             </Row>
 
-            <Button variant="danger" onClick={handleLogout}>Выйти</Button>
+            <Button
+                variant="danger"
+                style={{
+                    ...styles.logoutButton,
+                    ...(isHovered ? styles.logoutButtonHover : {})
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.logoutButtonHover.backgroundColor;
+                    e.currentTarget.style.color = styles.logoutButtonHover.color;
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.logoutButton.backgroundColor;
+                    e.currentTarget.style.color = styles.logoutButton.color;
+                }}
+                onMouseDown={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.buttonActive.backgroundColor;
+                }}
+                onMouseUp={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                }}
+                onClick={handleLogout}
+            >
+                Выйти
+            </Button>
 
             <ChangePasswordModal
                 show={showChangePasswordModal}
