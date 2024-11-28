@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { AiFillPhone } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
+import auth from "../pages/Auth.tsx";
 
 const Footer: React.FC = () => {
     const styles = {
@@ -9,7 +10,7 @@ const Footer: React.FC = () => {
             backgroundColor: '#1f1f1f',
             color: '#fff',
             padding: '60px 0',
-            marginTop: '40px',
+            marginTop: 'auto',
             textAlign: 'center' as const,
             fontSize: '14px',
             position: 'relative' as const,

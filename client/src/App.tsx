@@ -25,6 +25,7 @@ import ScrollToTop from './components/ScrollToTop';  // Импортируем �
 import { ThemeProvider } from './contexts/ThemeContext';
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import EditUser from "./pages/admin/EditUser.tsx";
+import './styles/global.css'
 
 function App() {
     return (
