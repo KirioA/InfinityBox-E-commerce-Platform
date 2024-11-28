@@ -14,6 +14,7 @@ import { userUpdate } from './routes/user/userUpdate.js';
 import { userFetchData } from './routes/user/userFetchData.js';
 import { userVerifyPassword } from './routes/user/userVerifyPassword.js';
 import { userUpdatePassword } from './routes/user/userUpdatePassword.js';
+import { userUploadAvatar, upload } from './routes/user/userUploadAvatar.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +30,16 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+http://localhost:3000/
 
+// Раздача статических файлов для аватаров
+app.use('/uploads', express.static(path.resolve('uploads')));
+console.log('[INFO] Serving static files from /uploads');
+
+// Убедитесь, что SERVER_URL настроен в .env
+console.log(`[INFO] SERVER_URL: ${process.env.SERVER_URL}`);
+
+// Основные эндпоинты
 app.get('/api', (req, res) => {
   res.json({ fruits: ['apple', 'strawberry', 'pineapple'] });
 });
@@ -41,6 +51,14 @@ app.get('/api/v1/user/fetchdata', authenticateJWT, userFetchData);
 app.post('/api/v1/user/update', authenticateJWT, userUpdate);
 app.post('/api/v1/user/verify-password', authenticateJWT, userVerifyPassword);
 app.post('/api/v1/user/update-password', authenticateJWT, userUpdatePassword);
+
+// Новый эндпоинт для загрузки аватарки
+app.post(
+    '/api/v1/user/upload-avatar',
+    authenticateJWT,
+    upload.single('avatar'),
+    userUploadAvatar
+);
 
 app.listen(appPort, () => {
   console.log(`Server is running on http://localhost:${appPort}`);

@@ -23,9 +23,13 @@ export const verifyOldPassword = createAsyncThunk(
     'user/verifyOldPassword',
     async (oldPassword: string, { rejectWithValue }) => {
         try {
-            const response = await axios.post('/api/v1/user/verify-password', { oldPassword }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-            });
+            const response = await axios.post(
+                '/api/v1/user/verify-password',
+                { oldPassword },
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                }
+            );
             return response.data; // Сервер должен вернуть { success: true }
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Ошибка проверки пароля');
@@ -46,6 +50,40 @@ export const updatePassword = createAsyncThunk(
     }
 );
 
+// Асинхронное действие для загрузки нового аватара
+export const uploadAvatar = createAsyncThunk(
+    'user/uploadAvatar',
+    async (file: File, { rejectWithValue }) => {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            return rejectWithValue('Токен не найден. Выполните вход снова.');
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            console.log('[INFO] Отправка файла на сервер:', file.name);
+
+            const response = await axios.post('/api/v1/user/upload-avatar', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('[INFO] Ответ сервера:', response.data);
+
+            // Предполагаем, что сервер возвращает { profilePicture: 'url' }
+            return response.data; // { profilePicture: 'new-avatar-url' }
+        } catch (error: any) {
+            console.error('[ERROR] Ошибка загрузки аватара:', error.response?.data || error.message);
+            return rejectWithValue(error.response?.data || 'Ошибка при загрузке аватара');
+        }
+    }
+);
+
 const userSlice = createSlice({
     name: 'user',
     initialState: {
@@ -57,6 +95,8 @@ const userSlice = createSlice({
         verificationError: null, // Ошибки проверки старого пароля
         updating: false, // Состояние для обновления пароля
         updateError: null, // Ошибки обновления пароля
+        updatingAvatar: false, // Состояние для загрузки аватара
+        avatarError: null, // Ошибка загрузки аватара
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -99,6 +139,21 @@ const userSlice = createSlice({
             .addCase(updatePassword.rejected, (state, action) => {
                 state.updating = false;
                 state.updateError = action.payload as string;
+            })
+            // Загрузка аватара
+            .addCase(uploadAvatar.pending, (state) => {
+                state.updatingAvatar = true;
+                state.avatarError = null;
+            })
+            .addCase(uploadAvatar.fulfilled, (state, action) => {
+                state.updatingAvatar = false;
+                if (action.payload?.profilePicture) {
+                    state.user = { ...state.user, profilePicture: action.payload.profilePicture };
+                }
+            })
+            .addCase(uploadAvatar.rejected, (state, action) => {
+                state.updatingAvatar = false;
+                state.avatarError = action.payload || 'Ошибка загрузки аватара';
             });
     },
 });

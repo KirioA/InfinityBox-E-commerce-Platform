@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks.tsx';
-import { fetchUserData } from '../slices/userSlice';
+import { fetchUserData, uploadAvatar } from '../slices/userSlice';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Container, Button, Row, Col, Card, Image, Alert, Table, Spinner } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import ChangePasswordModal from '../../src/components/modal/changePasswordModal.tsx';
 import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
+import dotenv from 'dotenv';
+
+
 
 const Account: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -16,6 +19,9 @@ const Account: React.FC = () => {
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState<'success' | 'danger'>('success');
     const token = localStorage.getItem('token'); // Используем токен для авторизации
+    const avatarUrl = user?.profilePicture || '/default-avatar.png';
+
+
 
     useEffect(() => {
         if (token) {
@@ -52,13 +58,15 @@ const Account: React.FC = () => {
         setShowChangePasswordModal(false);
     };
 
-    const handleUpdateAvatar = async (avatarUrl: string) => {
+    const handleUpdateAvatar = async (file: File) => {
+        console.log('[INFO] handleUpdateAvatar called with file:', file);
         try {
-            console.log('[INFO] Updating avatar with URL:', avatarUrl);
+            console.log('[INFO] Updating avatar with file:', file);
+            await dispatch(uploadAvatar(file)).unwrap();
             setMessage('Аватар успешно обновлен');
             setVariant('success');
-        } catch {
-            console.error('[ERROR] Error updating avatar');
+        } catch (error) {
+            console.error('[ERROR] Error updating avatar:', error);
             setMessage('Не удалось обновить аватар');
             setVariant('danger');
         }
@@ -126,12 +134,13 @@ const Account: React.FC = () => {
                             <Card.Header>Личная информация</Card.Header>
                             <Card.Body>
                                 <Image
-                                    src={formatValue(user?.profilePicture, '/default-avatar.png')}
+                                    src={"http://localhost:3000" +avatarUrl}
                                     roundedCircle
                                     className="mb-3"
                                     width="100"
                                     height="100"
                                 />
+
                                 <p>Имя пользователя: <strong>{formatValue(user?.message)}</strong></p>
                                 <p>Email: <strong>{formatValue(user?.mail)}</strong></p>
                                 <p>Имя: <strong>{formatValue(user?.firstName)}</strong></p>
@@ -220,6 +229,7 @@ const Account: React.FC = () => {
                 show={showUploadAvatarModal}
                 onHide={() => setShowUploadAvatarModal(false)}
                 onSubmit={handleUpdateAvatar}
+                currentAvatar={user?.profilePicture || '/default-avatar.png'}
             />
         </Container>
     );

@@ -1,8 +1,5 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-
 import { dbGetConnection } from '../../database.js';
 
 const userFetchData = async (req: Request, res: Response) => {
@@ -20,8 +17,10 @@ const userFetchData = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-        const userAddress = user.address || {}
 
+        const userAddress = user.address || {};
+
+        // Возвращаем путь к аватару, указывая только на серверную часть
         return res.status(200).json({
             success: true,
             message: user.name ?? "None",
@@ -32,7 +31,8 @@ const userFetchData = async (req: Request, res: Response) => {
             bonusPoints: user.bonusPoints ?? "None",
             status: user.status ?? "None",
             createdAt: user.createdAt ?? "None",
-            profilePicture: user.profilePicture ?? "None",
+            // Здесь изменяем путь, чтобы он начинался от корня, а не от SERVER_URL
+            profilePicture: user.profilePicture ? `${user.profilePicture}` : "None",
             address: {
                 street: userAddress.street ?? "None",
                 city: userAddress.city ?? "None",
@@ -44,6 +44,6 @@ const userFetchData = async (req: Request, res: Response) => {
         console.error('[ERROR][userFetchData]: ', error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};
 
-export { userFetchData }
+export { userFetchData };

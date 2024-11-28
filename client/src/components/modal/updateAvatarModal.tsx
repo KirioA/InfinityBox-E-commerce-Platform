@@ -1,62 +1,75 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Modal, Button, Image, Form } from 'react-bootstrap';
 
 interface UploadAvatarModalProps {
     show: boolean;
     onHide: () => void;
-    onSave: (avatarUrl: string) => void;
+    onSubmit: (avatarUrl: string) => void;
+    currentAvatar: string; // Ссылка на текущий аватар
 }
 
-const UploadAvatarModal: React.FC<UploadAvatarModalProps> = ({ show, onHide, onSave }) => {
-    const [avatarUrl, setAvatarUrl] = useState('');
-    const [message, setMessage] = useState('');
+const UploadAvatarModal: React.FC<UploadAvatarModalProps> = ({ show, onHide, onSubmit, currentAvatar }) => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setAvatarUrl(e.target.value);
-    };
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (avatarUrl.trim()) {
-            onSave(avatarUrl);
-            setMessage('Аватар успешно обновлен');
-            setTimeout(() => {
-                setMessage('');
-                onHide();
-            }, 2000);
-        } else {
-            setMessage('Введите URL для нового аватара');
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreview(URL.createObjectURL(file)); // Отображаем предварительный просмотр
         }
     };
 
-    const handleClose = () => {
-        setMessage('');
-        setAvatarUrl('');
-        onHide();
+    const handleUpload = () => {
+        if (selectedFile) {
+            onSubmit(selectedFile); // Отправляем выбранный файл
+        }
     };
-
     return (
-        <Modal show={show} onHide={handleClose} backdrop="static" keyboard={true}>
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Загрузка нового аватара</Modal.Title>
+                <Modal.Title>Изменить аватар</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                {message && <Alert variant="success">{message}</Alert>}
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group controlId="avatarUrl">
-                        <Form.Label>URL аватара</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={avatarUrl}
-                            onChange={handleChange}
-                            placeholder="Введите URL изображения"
+            <Modal.Body className="text-center">
+                <h5>Текущий аватар</h5>
+                <Image
+                    src={currentAvatar.startsWith('http') ? currentAvatar : `http://localhost:3000${currentAvatar}`}
+                    roundedCircle
+                    className="mb-3"
+                    width="150"
+                    height="150"
+                    alt="Текущий аватар"
+                />
+                {preview && (
+                    <>
+                        <h5>Новый аватар (предпросмотр)</h5>
+                        <Image
+                            src={preview}
+                            roundedCircle
+                            className="mb-3"
+                            width="150"
+                            height="150"
+                            alt="Новый аватар"
                         />
-                    </Form.Group>
-                    <Button variant="primary" type="submit" className="mt-3">
-                        Сохранить
-                    </Button>
-                </Form>
+                    </>
+                )}
+                <Form.Group>
+                    <Form.Label>Загрузите новый аватар</Form.Label>
+                    <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
+                </Form.Group>
             </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onHide}>
+                    Отмена
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={handleUpload}
+                    disabled={!selectedFile}
+                >
+                    Сохранить
+                </Button>
+            </Modal.Footer>
         </Modal>
     );
 };
