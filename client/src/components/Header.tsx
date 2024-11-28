@@ -50,21 +50,36 @@ const Header: React.FC = () => {
         themeIcon: {
             color: theme === 'light' ? '#000' : '#fff',
         },
+        toggleButton: {
+            border: 'none',
+            backgroundColor: theme === 'light' ? '#f1f1f1' : '#444444',
+            color: theme === 'light' ? '#000' : '#fff',
+            borderRadius: '5px',
+            padding: '8px 12px',
+            cursor: 'pointer',
+        },
     };
 
     return (
         <header style={styles.header}>
-            <Navbar expand="lg" variant="dark" style={styles.navbar} expanded={expanded}>
+            <Navbar
+                expand="lg"
+                variant="dark"
+                style={styles.navbar}
+                expanded={expanded}
+                collapseOnSelect
+            >
                 <Container>
                     <Navbar.Brand as={Link} to="/">
                         <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
+                    {/* Применение стилей для кнопки Navbar.Toggle */}
                     <Navbar.Toggle
-                        className={styles.navbar}
+                        style={styles.toggleButton}
                         aria-controls="navbar-nav"
                         onClick={() => setExpanded(!expanded)}
                     />
-                    <Navbar.Collapse id="navbar-nav">
+                    <Navbar.Collapse id="navbar-nav" className={expanded ? 'show' : ''}>
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
                             {/* Каталог */}
                             <Nav.Item className="mx-3">

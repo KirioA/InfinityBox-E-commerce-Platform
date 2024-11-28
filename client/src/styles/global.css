@@ -81,3 +81,10 @@ body.dark-theme {
     background-color: #81c784 !important;
     color: #fff !important;
 }
+
+.navbar-toggler:focus,
+.navbar-toggler:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
