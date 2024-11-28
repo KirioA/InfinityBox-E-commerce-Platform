@@ -213,12 +213,12 @@ const Account: React.FC = () => {
 
             <ChangePasswordModal
                 show={showChangePasswordModal}
-                onClose={() => setShowChangePasswordModal(false)}
+                onHide={() => setShowChangePasswordModal(false)}
                 onSubmit={handleUpdatePassword}
             />
             <UploadAvatarModal
                 show={showUploadAvatarModal}
-                onClose={() => setShowUploadAvatarModal(false)}
+                onHide={() => setShowUploadAvatarModal(false)}
                 onSubmit={handleUpdateAvatar}
             />
         </Container>

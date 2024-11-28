@@ -17,17 +17,26 @@ const UploadAvatarModal: React.FC<UploadAvatarModalProps> = ({ show, onHide, onS
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (avatarUrl) {
+        if (avatarUrl.trim()) {
             onSave(avatarUrl);
             setMessage('Аватар успешно обновлен');
-            setAvatarUrl('');
+            setTimeout(() => {
+                setMessage('');
+                onHide();
+            }, 2000);
         } else {
             setMessage('Введите URL для нового аватара');
         }
     };
 
+    const handleClose = () => {
+        setMessage('');
+        setAvatarUrl('');
+        onHide();
+    };
+
     return (
-        <Modal show={show} onHide={onHide}>
+        <Modal show={show} onHide={handleClose} backdrop="static" keyboard={true}>
             <Modal.Header closeButton>
                 <Modal.Title>Загрузка нового аватара</Modal.Title>
             </Modal.Header>

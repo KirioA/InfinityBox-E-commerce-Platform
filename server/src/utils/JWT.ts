@@ -21,5 +21,4 @@ const authenticateJWT = async (req, res, next) => {
     }
 };
 
-
 export { authenticateJWT };
