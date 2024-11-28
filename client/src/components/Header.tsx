@@ -13,9 +13,7 @@ const Header: React.FC = () => {
     const { getTotalItems } = useCart();
     const totalItems = getTotalItems();
     const { theme, toggleTheme } = useTheme();
-
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-
     const [expanded, setExpanded] = useState(false);
 
     const handleSelect = () => setExpanded(false);
@@ -52,13 +50,48 @@ const Header: React.FC = () => {
         },
         toggleButton: {
             border: 'none',
-            backgroundColor: theme === 'light' ? '#f1f1f1' : '#444444',
+            backgroundColor: theme === 'light' ? '#43a047' : '#444444',
             color: theme === 'light' ? '#000' : '#fff',
             borderRadius: '5px',
             padding: '8px 12px',
             cursor: 'pointer',
         },
+        cartButton: {
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'none',
+            color: theme === 'light' ? '#000' : '#fff',
+            position: 'relative' as const,
+        },
+        badge: {
+            position: 'absolute' as const,
+            top: '-5px',
+            right: '-10px',
+            backgroundColor: 'red',
+            color: '#fff',
+            borderRadius: '50%',
+            fontSize: '12px',
+            padding: '2px 6px',
+        },
+        navItem: {
+            display: 'flex',
+            alignItems: 'center',
+        },
+        mobileControls: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+        },
     };
+
+    const CartIcon = () => (
+        <Link to="/cart" style={styles.cartButton}>
+            <FiShoppingCart size={24} />
+            {totalItems > 0 && (
+                <span style={styles.badge}>{totalItems}</span>
+            )}
+        </Link>
+    );
 
     return (
         <header style={styles.header}>
@@ -70,16 +103,23 @@ const Header: React.FC = () => {
                 collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand as={Link} to="/">
+                    <Navbar.Brand as={Link} to="/" onClick={handleSelect}>
                         <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
-                    {/* Применение стилей для кнопки Navbar.Toggle */}
-                    <Navbar.Toggle
-                        style={styles.toggleButton}
-                        aria-controls="navbar-nav"
-                        onClick={() => setExpanded(!expanded)}
-                    />
-                    <Navbar.Collapse id="navbar-nav" className={expanded ? 'show' : ''}>
+
+                    <div style={styles.mobileControls}>
+                        {/* Корзина в мобильном виде */}
+                        <div className="d-lg-none">
+                            <CartIcon />
+                        </div>
+                        <Navbar.Toggle
+                            style={styles.toggleButton}
+                            aria-controls="navbar-nav"
+                            onClick={() => setExpanded(!expanded)}
+                        />
+                    </div>
+
+                    <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
                             {/* Каталог */}
                             <Nav.Item className="mx-3">
@@ -87,7 +127,7 @@ const Header: React.FC = () => {
                                     <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Каталог
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu>
+                                    <Dropdown.Menu onClick={handleSelect}>
                                         {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
                                             <Dropdown.Item
                                                 as={Link}
@@ -107,7 +147,7 @@ const Header: React.FC = () => {
                                     <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Компания
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu>
+                                    <Dropdown.Menu onClick={handleSelect}>
                                         {[
                                             { label: 'О компании', link: '/about' },
                                             { label: 'Вакансии', link: '/careers' },
@@ -145,18 +185,6 @@ const Header: React.FC = () => {
                                 </Link>
                             </Nav.Item>
 
-                            {/* Корзина */}
-                            <Nav.Item className="mx-3">
-                                <Link to="/cart" className="nav-link d-flex align-items-center" style={styles.navLink} onClick={handleSelect}>
-                                    <FiShoppingCart size={24} />
-                                    {totalItems > 0 && (
-                                        <span className="badge bg-danger ms-2">
-                                            {totalItems}
-                                        </span>
-                                    )}
-                                </Link>
-                            </Nav.Item>
-
                             {/* Кнопка смены темы */}
                             <Nav.Item className="mx-3">
                                 <button onClick={toggleTheme} style={styles.themeButton}>
@@ -166,6 +194,11 @@ const Header: React.FC = () => {
                                         <FaSun size={24} style={styles.themeIcon} />
                                     )}
                                 </button>
+                            </Nav.Item>
+
+                            {/* Корзина в десктопном виде */}
+                            <Nav.Item className="ms-3 d-none d-lg-block">
+                                <CartIcon />
                             </Nav.Item>
                         </Nav>
                     </Navbar.Collapse>
