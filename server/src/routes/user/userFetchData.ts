@@ -18,7 +18,7 @@ const userFetchData = async (req: Request, res: Response) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        const userAddress = user.address || {};
+        const userAddresses = user.addresses?.[0] || {};
 
         // Возвращаем путь к аватару, указывая только на серверную часть
         return res.status(200).json({
@@ -34,10 +34,12 @@ const userFetchData = async (req: Request, res: Response) => {
             // Здесь изменяем путь, чтобы он начинался от корня, а не от SERVER_URL
             profilePicture: user.profilePicture ? `${user.profilePicture}` : "None",
             address: {
-                street: userAddress.street ?? "None",
-                city: userAddress.city ?? "None",
-                postalCode: userAddress.postalCode ?? "None",
-                country: userAddress.country ?? "None",
+
+                    street: userAddresses.street ?? "None",
+                    city: userAddresses.city ?? "None",
+                    postalCode: userAddresses.postalCode ?? "None",
+                    country: userAddresses.country ?? "None",
+
             }
         });
     } catch (error) {

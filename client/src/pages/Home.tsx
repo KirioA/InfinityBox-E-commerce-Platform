@@ -47,11 +47,12 @@ const Home: React.FC = () => {
         },
         cardBody: {
             padding: '25px',
+            color: theme === 'light' ? '#2c3e50' : '#ffffff',
         },
         button: {
             backgroundColor: '#4caf50',
             border: 'none',
-            color: '#ffffff',
+            color: theme === 'light' ? '#2c3e50' : '#ffffff',
             borderRadius: '10px',
             fontSize: '16px',
             padding: '12px 25px',
@@ -66,11 +67,13 @@ const Home: React.FC = () => {
             borderRadius: '25px',
             margin: '0 10px',
             transition: 'all 0.3s ease',
+            color: theme === 'light' ? '#2c3e50' : '#ffffff',
         },
         serviceIcon: {
             fontSize: '2.5rem',
             color: '#4caf50',
             marginBottom: '20px',
+
         },
     };
 

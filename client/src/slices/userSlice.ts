@@ -84,6 +84,38 @@ export const uploadAvatar = createAsyncThunk(
     }
 );
 
+export const addAddress = createAsyncThunk(
+    'user/addAddress',
+    async (address: { street: string; city: string; postalCode: string }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                '/api/v1/user/add-address',
+                address,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                }
+            );
+            return response.data; // Предполагаем, что сервер вернёт обновлённый список адресов
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Ошибка добавления адреса');
+        }
+    }
+);
+
+export const deleteAddress = createAsyncThunk(
+    'user/deleteAddress',
+    async (addressId: string, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`/api/v1/user/delete-address/${addressId}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            });
+            return response.data; // Предполагаем, что сервер вернёт обновлённый список адресов
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Ошибка удаления адреса');
+        }
+    }
+);
+
 const userSlice = createSlice({
     name: 'user',
     initialState: {
@@ -97,6 +129,7 @@ const userSlice = createSlice({
         updateError: null, // Ошибки обновления пароля
         updatingAvatar: false, // Состояние для загрузки аватара
         avatarError: null, // Ошибка загрузки аватара
+        addresses: [],
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -154,6 +187,31 @@ const userSlice = createSlice({
             .addCase(uploadAvatar.rejected, (state, action) => {
                 state.updatingAvatar = false;
                 state.avatarError = action.payload || 'Ошибка загрузки аватара';
+            })
+            .addCase(addAddress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(addAddress.fulfilled, (state, action) => {
+                state.loading = false;
+                state.addresses = action.payload.addresses; // Обновляем список адресов
+            })
+            .addCase(addAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'Ошибка добавления адреса';
+            })
+            // Удаление адреса
+            .addCase(deleteAddress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteAddress.fulfilled, (state, action) => {
+                state.loading = false;
+                state.addresses = action.payload.addresses; // Обновляем список адресов
+            })
+            .addCase(deleteAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'Ошибка удаления адреса';
             });
     },
 });

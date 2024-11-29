@@ -15,6 +15,8 @@ import { userFetchData } from './routes/user/userFetchData.js';
 import { userVerifyPassword } from './routes/user/userVerifyPassword.js';
 import { userUpdatePassword } from './routes/user/userUpdatePassword.js';
 import { userUploadAvatar, upload } from './routes/user/userUploadAvatar.js';
+import { addAddress } from './routes/user/userAddAdress.js';
+import { deleteAddress } from './routes/user/userDeleteAdress.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -51,6 +53,8 @@ app.get('/api/v1/user/fetchdata', authenticateJWT, userFetchData);
 app.post('/api/v1/user/update', authenticateJWT, userUpdate);
 app.post('/api/v1/user/verify-password', authenticateJWT, userVerifyPassword);
 app.post('/api/v1/user/update-password', authenticateJWT, userUpdatePassword);
+app.post('/api/v1/user/add-address', authenticateJWT, addAddress);
+app.delete('/api/v1/user/delete-address/:addressId', authenticateJWT, deleteAddress);
 
 // Новый эндпоинт для загрузки аватарки
 app.post(

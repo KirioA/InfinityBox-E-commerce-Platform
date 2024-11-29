@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks.tsx';
-import { fetchUserData, uploadAvatar } from '../slices/userSlice';
+import {addAddress, fetchUserData, uploadAvatar} from '../slices/userSlice';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Container, Button, Row, Col, Card, Image, Alert, Table, Spinner } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import ChangePasswordModal from '../../src/components/modal/changePasswordModal.tsx';
 import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
+import ChangeAddressModal from "../components/modal/ChangeAddressModal.tsx";
 import dotenv from 'dotenv';
 
 
@@ -21,8 +22,11 @@ const Account: React.FC = () => {
     const token = localStorage.getItem('token'); // Используем токен для авторизации
     const avatarUrl = user?.profilePicture || '/default-avatar.png';
 
+
     const [isHovered, setIsHovered] = useState(false);
     const [isActive, setIsActive] = useState(false);
+    const [showChangeAddressModal, setShowChangeAddressModal] = useState(false);
+
 
     const createButtonState = () => ({
         isHovered: false,
@@ -156,6 +160,25 @@ const Account: React.FC = () => {
         window.location.href = '/auth';
     };
 
+    const handleUpdateAddress = async (address: {
+        addressId?: string;  // Optional ID for existing address
+        street: string;
+        city: string;
+        postalCode: string;
+        country: string
+    }) => {
+        try {
+            console.log('[INFO] Updating/Adding address with:', address);
+            await dispatch(addAddress(address)).unwrap();
+            setMessage('Адрес успешно обновлен');
+            setVariant('success');
+        } catch (error) {
+            console.error('[ERROR] Error updating address:', error);
+            setMessage('Не удалось обновить адрес');
+            setVariant('danger');
+        }
+        setShowChangeAddressModal(false);
+    };
     if (loading) {
         return (
             <Container
@@ -170,7 +193,7 @@ const Account: React.FC = () => {
             </Container>
         );
     }
-
+    console.log(user)
     return (
         <Container style={styles.container}>
             <motion.h2
@@ -297,8 +320,19 @@ const Account: React.FC = () => {
                                     </strong>
                                 </p>
                             </Card.Body>
+                            <Button
+                                style={{
+                                    ...styles.button,
+                                    ...(isHovered ? styles.buttonHover : {}),
+                                    ...(isActive ? styles.buttonActive : {}),
+                                }}
+                                onClick={() => setShowChangeAddressModal(true)}
+                            >
+                                Изменить адрес
+                            </Button>
                         </Card>
                     </motion.div>
+
                 </Col>
             </Row>
 
@@ -378,6 +412,18 @@ const Account: React.FC = () => {
                 onHide={() => setShowUploadAvatarModal(false)}
                 onSubmit={handleUpdateAvatar}
                 currentAvatar={user?.profilePicture || '/default-avatar.png'}
+            />
+
+            <ChangeAddressModal
+                show={showChangeAddressModal}
+                onHide={() => setShowChangeAddressModal(false)}
+                onSubmit={handleUpdateAddress}
+                currentAddress={{
+                    street: user?.address?.street?.trim() === 'None' || !user?.address?.street ? 'Не указано' : user.address.street,
+                    city: user?.address?.city?.trim() === 'None' || !user?.address?.city ? 'Не указано' : user.address.city,
+                    postalCode: user?.address?.postalCode?.trim() === 'None' || !user?.address?.postalCode ? 'Не указано' : user.address.postalCode,
+                    country: user?.address?.country?.trim() === 'None' || !user?.address?.country ? 'Не указано' : user.address.country,
+                }}
             />
         </Container>
     );
