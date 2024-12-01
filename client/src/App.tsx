@@ -28,6 +28,7 @@ import AdminRoute from "./components/AdminRoute.tsx";
 import AdminAuthPage from "./pages/admin/AdminAuthPage.tsx";
 import EditUser from "./pages/admin/EditUser.tsx";
 import './styles/global.css'
+import UserManagement from "./pages/admin/UserManagement.tsx";
 
 function App() {
     return (
@@ -55,6 +56,9 @@ function App() {
                                 <Route
                                     path="/admin/edit-user/:userId"
                                     element={<AdminRoute element={<AdminDashboard />} />} />
+                                <Route
+                                    path="/admin/users"
+                                    element={<AdminRoute element={<UserManagement />} />} />
 
 
                                 <Route path="/about" element={<About />} />
