@@ -17,6 +17,8 @@ import { userUpdatePassword } from './routes/user/userUpdatePassword.js';
 import { userUploadAvatar, upload } from './routes/user/userUploadAvatar.js';
 import { addAddress } from './routes/user/userAddAdress.js';
 import { deleteAddress } from './routes/user/userDeleteAdress.js';
+import { userUpdatePersonalInfo } from './routes/user/userUpdatePersonalInfo.js';
+
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -34,14 +36,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 http://localhost:3000/
 
-// Раздача статических файлов для аватаров
 app.use('/uploads', express.static(path.resolve('uploads')));
 console.log('[INFO] Serving static files from /uploads');
 
-// Убедитесь, что SERVER_URL настроен в .env
 console.log(`[INFO] SERVER_URL: ${process.env.SERVER_URL}`);
 
-// Основные эндпоинты
 app.get('/api', (req, res) => {
   res.json({ fruits: ['apple', 'strawberry', 'pineapple'] });
 });
@@ -54,6 +53,8 @@ app.post('/api/v1/user/update', authenticateJWT, userUpdate);
 app.post('/api/v1/user/verify-password', authenticateJWT, userVerifyPassword);
 app.post('/api/v1/user/update-password', authenticateJWT, userUpdatePassword);
 app.post('/api/v1/user/add-address', authenticateJWT, addAddress);
+app.post('/api/v1/user/update-personal-info', authenticateJWT, userUpdatePersonalInfo);
+
 app.delete('/api/v1/user/delete-address/:addressId', authenticateJWT, deleteAddress);
 
 // Новый эндпоинт для загрузки аватарки

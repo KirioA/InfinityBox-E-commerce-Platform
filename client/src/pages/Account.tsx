@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks.tsx';
-import {addAddress, fetchUserData, uploadAvatar} from '../slices/userSlice';
+import {addAddress, fetchUserData, updatePersonalInfo, uploadAvatar} from '../slices/userSlice';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Container, Button, Row, Col, Card, Image, Alert, Table, Spinner } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import ChangePasswordModal from '../../src/components/modal/changePasswordModal.tsx';
 import UploadAvatarModal from '../../src/components/modal/updateAvatarModal.tsx';
 import ChangeAddressModal from "../components/modal/ChangeAddressModal.tsx";
-import dotenv from 'dotenv';
+import ModalAddPersonalInfo from '../components/modal/AddPersonalInfoModal'; // Импорт нового модального окна
+
 
 
 
@@ -26,13 +27,21 @@ const Account: React.FC = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [isActive, setIsActive] = useState(false);
     const [showChangeAddressModal, setShowChangeAddressModal] = useState(false);
-
+    const [showPersonalInfoModal, setShowPersonalInfoModal] = useState(false);
 
     const createButtonState = () => ({
         isHovered: false,
         isActive: false,
     });
+    const handleAddPersonalInfo = (firstName: string, lastName: string, phoneNumber: string) => {
+        dispatch(updatePersonalInfo({ firstName, lastName, phone}));
+        setShowPersonalInfoModal(false);
+        setMessage('Личная информация успешно обновлена');
+        setVariant('success');
+    };
 
+    const formatValue = (value: string | undefined | null, defaultValue: string = 'Не указан') =>
+        value && value !== 'None' ? value : defaultValue;
 
     const styles = {
         container: {
@@ -124,8 +133,7 @@ const Account: React.FC = () => {
         }
     }, [dispatch, token]);
 
-    const formatValue = (value: string | undefined | null, defaultValue: string = 'Не указан') =>
-        value && value !== 'None' ? value : defaultValue;
+    // const formatValue = (value: string | undefined | null, defaultValue: string = 'Не указан') =>  value && value !== 'None' ? value : defaultValue;
 
     const handleUpdatePassword = async (newPassword: string) => {
         try {
@@ -245,6 +253,31 @@ const Account: React.FC = () => {
                                 <p>Email: <strong>{formatValue(user?.mail)}</strong></p>
                                 <p>Имя: <strong>{formatValue(user?.firstName)}</strong></p>
                                 <p>Фамилия: <strong>{formatValue(user?.lastName)}</strong></p>
+                                <p>Номер телефона: <strong>{formatValue(user?.phone)}</strong></p>
+                                <Button
+                                    style={{
+                                        ...styles.button,
+                                        ...(isHovered ? styles.buttonHover : {}),
+                                        ...(isActive ? styles.buttonActive : {})
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                        e.currentTarget.style.color = styles.buttonHover.color;
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
+                                        e.currentTarget.style.color = styles.button.color;
+                                    }}
+                                    onMouseDown={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonActive.backgroundColor;
+                                    }}
+                                    onMouseUp={(e) => {
+                                        e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor;
+                                    }}
+                                    onClick={() => setShowPersonalInfoModal(true)}
+                                >
+                                    Добавить личную информацию
+                                </Button>
                                 <Button
                                     style={{
                                         ...styles.button,
@@ -424,6 +457,11 @@ const Account: React.FC = () => {
                     postalCode: user?.address?.postalCode?.trim() === 'None' || !user?.address?.postalCode ? 'Не указано' : user.address.postalCode,
                     country: user?.address?.country?.trim() === 'None' || !user?.address?.country ? 'Не указано' : user.address.country,
                 }}
+            />
+            <ModalAddPersonalInfo
+                show={showPersonalInfoModal}
+                handleClose={() => setShowPersonalInfoModal(false)}
+                handleSave={handleAddPersonalInfo}
             />
         </Container>
     );

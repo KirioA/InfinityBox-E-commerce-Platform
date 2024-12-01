@@ -116,6 +116,27 @@ export const deleteAddress = createAsyncThunk(
     }
 );
 
+export const updatePersonalInfo = createAsyncThunk(
+    'user/updatePersonalInfo',
+    async (userData: { firstName: string; lastName: string; phoneNumber: string }, { rejectWithValue }) => {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            return rejectWithValue('Токен не найден. Выполните вход снова.');
+        }
+
+        try {
+            const response = await axios.post('/api/v1/user/update-personal-info', userData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            return response.data.user; // Возвращаем обновленные данные пользователя
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Ошибка обновления данных');
+        }
+    }
+);
+
 const userSlice = createSlice({
     name: 'user',
     initialState: {
@@ -129,6 +150,8 @@ const userSlice = createSlice({
         updateError: null, // Ошибки обновления пароля
         updatingAvatar: false, // Состояние для загрузки аватара
         avatarError: null, // Ошибка загрузки аватара
+        updatingPersonalInfo: false, // Статус обновления личных данных
+        personalInfoError: null, // Ошибка обновления личных данных
         addresses: [],
     },
     reducers: {},
@@ -212,6 +235,19 @@ const userSlice = createSlice({
             .addCase(deleteAddress.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || 'Ошибка удаления адреса';
+            })
+            .addCase(updatePersonalInfo.pending, (state) => {
+                state.updatingPersonalInfo = true;
+                state.personalInfoError = null;
+            })
+            .addCase(updatePersonalInfo.fulfilled, (state, action) => {
+                state.updatingPersonalInfo = false;
+                state.user = action.payload; // Обновляем данные пользователя
+                state.personalInfoError = null;
+            })
+            .addCase(updatePersonalInfo.rejected, (state, action) => {
+                state.updatingPersonalInfo = false;
+                state.personalInfoError = action.payload || 'Ошибка обновления данных';
             });
     },
 });
