@@ -56,6 +56,16 @@ app.post('/api/v1/user/add-address', authenticateJWT, addAddress);
 app.post('/api/v1/user/update-personal-info', authenticateJWT, userUpdatePersonalInfo);
 
 app.delete('/api/v1/user/delete-address/:addressId', authenticateJWT, deleteAddress);
+app.post('/api/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  // Простая проверка, замените на свою логику
+  if (username === 'admin' && password === 'password') {
+    return res.status(200).json({ success: true });
+  } else {
+    return res.status(401).json({ success: false, message: 'Неверные данные для входа.' });
+  }
+});
 
 // Новый эндпоинт для загрузки аватарки
 app.post(

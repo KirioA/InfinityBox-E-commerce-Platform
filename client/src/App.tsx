@@ -24,6 +24,8 @@ import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';  // Импортируем компонент
 import { ThemeProvider } from './contexts/ThemeContext';
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import AdminRoute from "./components/AdminRoute.tsx";
+import AdminAuthPage from "./pages/admin/AdminAuthPage.tsx";
 import EditUser from "./pages/admin/EditUser.tsx";
 import './styles/global.css'
 
@@ -47,6 +49,14 @@ function App() {
                                     path="/account"
                                     element={<PrivateRoute element={<Account />} />}
                                 />
+                                <Route
+                                    path="/admin"
+                                    element={<AdminRoute element={<AdminDashboard />} />} />
+                                <Route
+                                    path="/admin/edit-user/:userId"
+                                    element={<AdminRoute element={<AdminDashboard />} />} />
+
+
                                 <Route path="/about" element={<About />} />
                                 <Route path="/contacts" element={<Contacts />} />
                                 <Route path="/delivery" element={<Delivery />} />
@@ -57,6 +67,7 @@ function App() {
                                 <Route path="*" element={<NotFound />} />
                                 <Route path="/admin" element={<AdminDashboard />} />
                                 <Route path="/admin/edit-user/:userId" element={<EditUser />} />
+                                <Route path="/admin/auth" element={<AdminAuthPage />} />
                             </Routes>
                         </div>
                         <Footer />
