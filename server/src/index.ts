@@ -18,7 +18,8 @@ import { userUploadAvatar, upload } from './routes/user/userUploadAvatar.js';
 import { addAddress } from './routes/user/userAddAdress.js';
 import { deleteAddress } from './routes/user/userDeleteAdress.js';
 import { userUpdatePersonalInfo } from './routes/user/userUpdatePersonalInfo.js';
-
+import {getAllUsers } from "./routes/user/userGetAll";
+import {deleteUser} from "./routes/user/userDelete";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -54,8 +55,10 @@ app.post('/api/v1/user/verify-password', authenticateJWT, userVerifyPassword);
 app.post('/api/v1/user/update-password', authenticateJWT, userUpdatePassword);
 app.post('/api/v1/user/add-address', authenticateJWT, addAddress);
 app.post('/api/v1/user/update-personal-info', authenticateJWT, userUpdatePersonalInfo);
-
+app.get('/api/v1/admin/users', getAllUsers);
 app.delete('/api/v1/user/delete-address/:addressId', authenticateJWT, deleteAddress);
+app.delete('/api/v1/admin/users/:id', deleteUser);
+
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
 
