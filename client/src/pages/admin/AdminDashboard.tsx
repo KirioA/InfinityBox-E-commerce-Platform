@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AdminDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -14,21 +15,30 @@ const AdminDashboard: React.FC = () => {
         totalRevenue: 0
     });
 
-    // Test data for dashboard statistics
+    // Fetch dashboard statistics including total users from the server
     useEffect(() => {
-        // Simulate loading dashboard statistics
-        setDashboardStats({
-            totalUsers: 15,
-            totalProducts: 25,
-            totalCategories: 5,
-            totalSales: 42,
-            totalRevenue: 124500
-        });
-    }, []);
+        const fetchDashboardStats = async () => {
+            try {
+                // Fetch total users count (and other statistics if necessary)
+                const response = await axios.get('/api/v1/admin/dashboard-stats'); // Замените на ваш URL
+                setDashboardStats({
+                    totalUsers: response.data.totalUsers,
+                    totalProducts: response.data.totalProducts,
+                    totalCategories: response.data.totalCategories,
+                    totalSales: response.data.totalSales,
+                    totalRevenue: response.data.totalRevenue
+                });
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+            }
+        };
+
+        fetchDashboardStats();
+    }, []); // Запрос на загрузку данных при монтировании компонента
 
     // Navigation handlers
     const navigateToSection = (section: string) => {
-        switch(section) {
+        switch (section) {
             case 'users':
                 navigate('/admin/users');
                 break;

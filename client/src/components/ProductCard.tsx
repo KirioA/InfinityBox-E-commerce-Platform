@@ -1,51 +1,31 @@
-// src/components/ProductCard.tsx
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { fetchProductById } from '../services/productService';
 
-interface Product {
-    id: number;
+interface ProductCardProps {
+    id: string;
     title: string;
     description: string;
     price: number;
+    category: string;
+    imageUrl: string;
 }
 
-interface ProductCardProps {
-    id: number;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ id }) => {
-    const [product, setProduct] = useState<Product | null>(null);
+const ProductCard: React.FC<ProductCardProps> = ({ id, title, description, price, category, imageUrl }) => {
     const { addToCart } = useCart();
-
-    useEffect(() => {
-        const loadProduct = async () => {
-            try {
-                const fetchedProduct = await fetchProductById(id);
-                // setProduct(fetchedProduct);
-            } catch (error) {
-                // console.error('Ошибка при загрузке товара:', error);
-            }
-        };
-
-        loadProduct();
-    }, [id]);
-
-    if (!product) {
-        return <div>Загрузка...</div>;
-    }
-
-    const { title, description, price } = product;
 
     return (
         <Card style={{ width: '18rem', marginBottom: '20px' }}>
+            <Card.Img variant="top" src={imageUrl} alt={title} />
             <Card.Body>
                 <Card.Title>{title}</Card.Title>
                 <Card.Text>{description}</Card.Text>
-                <Card.Text>Цена: {price} ₽</Card.Text>
-                <Button variant="primary" onClick={() => addToCart(product)}>Добавить в корзину</Button>
+                <Card.Text><strong>Цена: {price} ₽</strong></Card.Text>
+                <Card.Text><small>{category}</small></Card.Text>
+                <Button variant="primary" onClick={() => addToCart({ id, title, description, price, category, imageUrl })}>
+                    Добавить в корзину
+                </Button>
                 <Link to={`/product/${id}`} style={{ textDecoration: 'none' }}>
                     <Button variant="link" className="mt-2">Подробнее</Button>
                 </Link>
