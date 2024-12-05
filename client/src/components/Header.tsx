@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { FiShoppingCart } from 'react-icons/fi';
@@ -10,11 +10,13 @@ import logo from '../img/logo.svg';
 import '../styles/global.css';
 
 const Header: React.FC = () => {
+    const navigate = useNavigate();
     const { getTotalItems } = useCart();
     const totalItems = getTotalItems();
     const { theme, toggleTheme } = useTheme();
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
     const [expanded, setExpanded] = useState(false);
+    const [isCategoryHovered, setIsCategoryHovered] = useState(false);
 
     const handleSelect = () => setExpanded(false);
 
@@ -36,6 +38,11 @@ const Header: React.FC = () => {
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
         },
         navLink: {
+            color: theme === 'light' ? '#000' : '#fff',
+            fontWeight: 500,
+        },
+        navLinkCat: {
+            display: isCategoryHovered ? 'block' : 'none',
             color: theme === 'light' ? '#000' : '#fff',
             fontWeight: 500,
         },
@@ -83,6 +90,11 @@ const Header: React.FC = () => {
             gap: '15px',
         },
     };
+    // const categories = [
+    //     { label: 'Категория 1', link: '/category/1' },
+    //     { label: 'Категория 2', link: '/category/2' },
+    //     { label: 'Категория 3', link: '/category/3' },
+    // ];
 
     const CartIcon = () => (
         <Link to="/cart" style={styles.cartButton}>
@@ -123,29 +135,55 @@ const Header: React.FC = () => {
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
                             {/* Каталог */}
-                            <Nav.Item className="mx-3">
+                            <Nav.Item
+                                className="mx-3"
+
+                            >
                                 <Dropdown>
-                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}
+                                                     onMouseEnter={() => setIsCategoryHovered(true)}
+                                                     onMouseLeave={() => setIsCategoryHovered(false)}
+                                                     onClick={() => navigate("/catalog")}
+                                    >
+
+
                                         Каталог
                                     </Dropdown.Toggle>
-                                    <Dropdown.Menu onClick={handleSelect}>
-                                        {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
-                                            <Dropdown.Item
-                                                as={Link}
-                                                to={`/category/${index + 1}`}
-                                                key={category}
-                                            >
-                                                {category}
-                                            </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
+                                    <div style={styles.navLinkCat}
+                                         onMouseEnter={() => setIsCategoryHovered(true)}
+                                         onMouseLeave={() => setIsCategoryHovered(false)}>
+                                        <Dropdown.Menu onClick={handleSelect} style={styles.navLinkCat}>
+                                            {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
+                                                <Dropdown.Item
+                                                    as={Link}
+                                                    to={`/category/${index + 1}`}
+                                                    key={category}
+                                                >
+                                                    {category}
+                                                </Dropdown.Item>
+                                            ))}
+
+                                                {/*{categories.map((category) => (*/}
+                                                {/*    <Dropdown.Item*/}
+                                                {/*        key={category.label}*/}
+
+                                                {/*        to={category.link}*/}
+
+                                                {/*        onClick={handleSelect}*/}
+                                                {/*    >*/}
+                                                {/*        {category.label}*/}
+                                                {/*    </Dropdown.Item>*/}
+                                                {/*))}*/}
+
+                                        </Dropdown.Menu>
+                                    </div>
                                 </Dropdown>
                             </Nav.Item>
 
                             {/* Компания */}
                             <Nav.Item className="mx-3">
                                 <Dropdown>
-                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
+                                <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Компания
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu onClick={handleSelect}>

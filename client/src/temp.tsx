@@ -1,112 +1,233 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '../hooks/reduxHooks';
-import { login, register, clearError } from '../slices/authSlice';
-import { Alert, Button, Form, Card } from 'react-bootstrap';
-import ErrorAlert from '../components/ErrorAlert';
-import { FaGoogle, FaTelegramPlane } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { FiShoppingCart } from 'react-icons/fi';
+import { FaSun, FaMoon } from 'react-icons/fa';
+import { useAppSelector } from '../hooks/reduxHooks.tsx';
+import logo from '../img/logo.svg';
+import '../styles/global.css';
 
-const Auth: React.FC = () => {
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [confirmPassword, setConfirmPassword] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [isLogin, setIsLogin] = useState<boolean>(true);
-
-    const { isAuthenticated, error, loading } = useAppSelector((state) => state.auth);
-    const dispatch = useAppDispatch();
+const Header: React.FC = () => {
     const navigate = useNavigate();
+    const { getTotalItems } = useCart();
+    const totalItems = getTotalItems();
+    const { theme, toggleTheme } = useTheme();
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+    const [expanded, setExpanded] = useState(false);
+    const [isCategoryHovered, setIsCategoryHovered] = useState(false);
+
+    const handleSelect = () => setExpanded(false);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/account');
-        }
-    }, [isAuthenticated, navigate]);
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (isLogin) {
-            dispatch(login({ username, password }));
-        } else {
-            if (password !== confirmPassword) {
-                return alert('Пароли не совпадают');
-            }
-            dispatch(register({ username, password, email }));
-        }
+    const styles = {
+        header: {
+            position: 'fixed' as const,
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 999,
+        },
+        navbar: {
+            backgroundColor: theme === 'light' ? '#ffffff' : '#333333',
+            padding: '20px 0',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        },
+        navLink: {
+            color: theme === 'light' ? '#000' : '#fff',
+            fontWeight: 500,
+        },
+        themeButton: {
+            backgroundColor: 'transparent',
+            border: 'none',
+            padding: '10px',
+            cursor: 'pointer',
+        },
+        themeIcon: {
+            color: theme === 'light' ? '#000' : '#fff',
+        },
+        toggleButton: {
+            border: 'none',
+            backgroundColor: theme === 'light' ? '#43a047' : '#444444',
+            color: theme === 'light' ? '#000' : '#fff',
+            borderRadius: '5px',
+            padding: '8px 12px',
+            cursor: 'pointer',
+        },
+        cartButton: {
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'none',
+            color: theme === 'light' ? '#000' : '#fff',
+            position: 'relative' as const,
+        },
+        badge: {
+            position: 'absolute' as const,
+            top: '-5px',
+            right: '-10px',
+            backgroundColor: 'red',
+            color: '#fff',
+            borderRadius: '50%',
+            fontSize: '12px',
+            padding: '2px 6px',
+        },
+        navItem: {
+            display: 'flex',
+            alignItems: 'center',
+        },
+        mobileControls: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+        },
     };
+    const categories = [
+        { label: 'Категория 1', link: '/category/1' },
+        { label: 'Категория 2', link: '/category/2' },
+        { label: 'Категория 3', link: '/category/3' },
+    ];
 
-    const toggleLoginMode = () => {
-        setIsLogin((prevState) => !prevState);
-        dispatch(clearError());
-    };
+    const CartIcon = () => (
+        <Link to="/cart" style={styles.cartButton}>
+            <FiShoppingCart size={24} />
+            {totalItems > 0 && (
+                <span style={styles.badge}>{totalItems}</span>
+            )}
+        </Link>
+    );
 
     return (
-        <div className="auth-container">
-            <Card className="auth-form-card">
-                <Card.Body>
-                    <h2>{isLogin ? 'Войти' : 'Зарегистрироваться'}</h2>
+        <header style={styles.header}>
+            <Navbar
+                expand="lg"
+                variant="dark"
+                style={styles.navbar}
+                expanded={expanded}
+                collapseOnSelect
+            >
+                <Container>
+                    <Navbar.Brand as={Link} to="/" onClick={handleSelect}>
+                        <img src={logo} alt="logo" height="40px" />
+                    </Navbar.Brand>
 
-                    {error && <ErrorAlert message={error} />}
-                    {loading && <p>Загрузка...</p>}
+                    <div style={styles.mobileControls} >
+                        {/* Корзина в мобильном виде */}
+                        <div className="d-lg-none"  onClick={handleSelect}>
+                            <CartIcon />
+                        </div>
+                        <Navbar.Toggle
+                            style={styles.toggleButton}
+                            aria-controls="navbar-nav"
+                            onClick={() => setExpanded(!expanded)}
+                            onSelect={handleSelect}
+                        />
+                    </div>
 
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Логин</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Введите логин"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                        </Form.Group>
+                    <Navbar.Collapse id="navbar-nav">
+                        <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
+                            {/* Каталог */}
+                            <Nav.Item
+                                className="mx-3"
+                                onMouseEnter={() => setIsCategoryHovered(true)}
+                                onMouseLeave={() => setIsCategoryHovered(false)}
+                            >
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink} onClick={() => navigate('/catalog')}>
+                                        Каталог
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu onClick={handleSelect}  >
+                                        {/*{['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (*/}
+                                        {/*    <Dropdown.Item*/}
+                                        {/*        as={Link}*/}
+                                        {/*        to={`/category/${index + 1}`}*/}
+                                        {/*        key={category}*/}
+                                        {/*    >*/}
+                                        {/*        {category}*/}f
+                                        {/*    </Dropdown.Item>*/}
+                                        {/*))}*/}
+                                        {categories.map((category) => (
+                                            <Dropdown.Item
+                                                key={category.label}
+                                                to={category.link}
 
-                        {!isLogin && (
-                            <Form.Group className="mb-3">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Введите email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </Form.Group>
-                        )}
+                                                onClick={handleSelect}
+                                            >
+                                                {category.label}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Nav.Item>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Пароль</Form.Label>
-                            <Form.Control
-                                type="password"
-                                placeholder="Введите пароль"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </Form.Group>
+                            {/* Компания */}
+                            <Nav.Item className="mx-3">
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
+                                        Компания
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu onClick={handleSelect}>
+                                        {[
+                                            { label: 'О компании', link: '/about' },
+                                            { label: 'Вакансии', link: '/careers' },
+                                            { label: 'Новости', link: '/news' },
+                                            { label: 'Отзывы', link: '/reviews' },
+                                        ].map((item) => (
+                                            <Dropdown.Item as={Link} to={item.link} key={item.label}>
+                                                {item.label}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Nav.Item>
 
-                        {!isLogin && (
-                            <Form.Group className="mb-3">
-                                <Form.Label>Подтвердите пароль</Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    placeholder="Подтвердите пароль"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                />
-                            </Form.Group>
-                        )}
+                            {/* Прочие ссылки */}
+                            <Nav.Item className="mx-3">
+                                <Link to="/delivery" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                    Доставка и оплата
+                                </Link>
+                            </Nav.Item>
+                            <Nav.Item className="mx-3">
+                                {!isAuthenticated ? (
+                                    <Link to="/auth" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                        Вход / Регистрация
+                                    </Link>
+                                ) : (
+                                    <Link to="/account" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                        Аккаунт
+                                    </Link>
+                                )}
+                            </Nav.Item>
+                            <Nav.Item className="mx-3">
+                                <Link to="/contacts" className="nav-link" style={styles.navLink} onClick={handleSelect}>
+                                    Контакты
+                                </Link>
+                            </Nav.Item>
 
-                        <Button type="submit" disabled={loading}>
-                            {isLogin ? 'Войти' : 'Зарегистрироваться'}
-                        </Button>
+                            {/* Кнопка смены темы */}
+                            <Nav.Item className="mx-3">
+                                <button onClick={toggleTheme} style={styles.themeButton}>
+                                    {theme === 'light' ? (
+                                        <FaMoon size={24} style={styles.themeIcon} />
+                                    ) : (
+                                        <FaSun size={24} style={styles.themeIcon} />
+                                    )}
+                                </button>
+                            </Nav.Item>
 
-                        <Button variant="link" onClick={toggleLoginMode}>
-                            {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
-                        </Button>
-                    </Form>
-                </Card.Body>
-            </Card>
-        </div>
+                            {/* Корзина в десктопном виде */}
+                            <Nav.Item className="ms-3 d-none d-lg-block" onClick={handleSelect} >
+                                <CartIcon />
+                            </Nav.Item>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </header>
     );
 };
 
-export default Auth;
+export default Header;
