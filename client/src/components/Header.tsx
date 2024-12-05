@@ -107,15 +107,16 @@ const Header: React.FC = () => {
                         <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
 
-                    <div style={styles.mobileControls}>
+                    <div style={styles.mobileControls} >
                         {/* Корзина в мобильном виде */}
-                        <div className="d-lg-none">
+                        <div className="d-lg-none"  onClick={handleSelect}>
                             <CartIcon />
                         </div>
                         <Navbar.Toggle
                             style={styles.toggleButton}
                             aria-controls="navbar-nav"
                             onClick={() => setExpanded(!expanded)}
+                            onSelect={handleSelect}
                         />
                     </div>
 
@@ -197,7 +198,7 @@ const Header: React.FC = () => {
                             </Nav.Item>
 
                             {/* Корзина в десктопном виде */}
-                            <Nav.Item className="ms-3 d-none d-lg-block">
+                            <Nav.Item className="ms-3 d-none d-lg-block" onClick={handleSelect} >
                                 <CartIcon />
                             </Nav.Item>
                         </Nav>

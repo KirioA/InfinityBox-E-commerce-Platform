@@ -1,151 +1,290 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Alert } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { addProduct } from '../../slices/productSlice';
+
+interface Product {
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    imageUrl: string;
+    stock?: number;
+    netWeight?: number;
+    status?: string;
+}
 
 interface AddProductModalProps {
     show: boolean;
     onHide: () => void;
-    onAddProduct: (newProduct: any) => void;
-    categories: any[];
+    categories: string[];
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, onAddProduct, categories }) => {
-    const [newProductName, setNewProductName] = useState<string>('');
-    const [newProductPrice, setNewProductPrice] = useState<number>(0);
-    const [newProductDescription, setNewProductDescription] = useState<string>('');
-    const [newProductImage, setNewProductImage] = useState<string>('');
-    const [newProductShortDescription, setNewProductShortDescription] = useState<string>('');
-    const [newProductCategory, setNewProductCategory] = useState<string>('');
-    const [newProductStock, setNewProductStock] = useState<number>(0);
+const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categories }) => {
+    const dispatch = useDispatch();
 
-    const handleAddProduct = () => {
-        if (
-            newProductName.trim() &&
-            newProductPrice > 0 &&
-            newProductDescription.trim() &&
-            newProductImage.trim() &&
-            newProductShortDescription.trim() &&
-            newProductCategory &&
-            newProductStock > 0
-        ) {
-            const newProduct = {
-                _id: `${Date.now()}`,
-                name: newProductName.trim(),
-                price: newProductPrice,
-                description: newProductDescription.trim(),
-                image: newProductImage.trim(),
-                shortDescription: newProductShortDescription.trim(),
-                category: { _id: newProductCategory, name: newProductCategory },
-                stock: newProductStock,
-                createdAt: new Date().toISOString(),
-            };
-            onAddProduct(newProduct);
-            onHide(); // Закрыть модальное окно после добавления
-            resetProductForm();
+    const [newProduct, setNewProduct] = useState<Product>({
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        imageUrl: '',
+        stock: 0,
+        netWeight: 0,
+        status: 'active'
+    });
+
+    const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+    const validateField = (name: string, value: string | number) => {
+        const newErrors = { ...errors };
+
+        switch (name) {
+            case 'name':
+                if (!value || value.toString().trim() === '') {
+                    newErrors.name = 'Название товара обязательно';
+                } else if (value.toString().length < 3) {
+                    newErrors.name = 'Название должно быть не короче 3 символов';
+                } else {
+                    delete newErrors.name;
+                }
+                break;
+            case 'price':
+                const price = Number(value);
+                if (price <= 0) {
+                    newErrors.price = 'Цена должна быть положительной';
+                } else {
+                    delete newErrors.price;
+                }
+                break;
+            case 'category':
+                if (!value || value === '') {
+                    newErrors.category = 'Выберите категорию';
+                } else {
+                    delete newErrors.category;
+                }
+                break;
+            case 'imageUrl':
+                // if (value && !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(value.toString())) {
+                //     newErrors.imageUrl = 'Введите корректный URL изображения';
+                // } else {
+                //     delete newErrors.imageUrl;
+                // }
+                delete newErrors.imageUrl;
+                break;
+            case 'stock':
+                const stock = Number(value);
+                if (stock < 0) {
+                    newErrors.stock = 'Остаток на складе не может быть отрицательным';
+                } else {
+                    delete newErrors.stock;
+                }
+                break;
+            case 'netWeight':
+                const netWeight = Number(value);
+                if (netWeight < 0) {
+                    newErrors.netWeight = 'Вес не может быть отрицательным';
+                } else {
+                    delete newErrors.netWeight;
+                }
+                break;
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        const processedValue = name === 'price' || name === 'stock' || name === 'netWeight'
+            ? Number(value)
+            : value;
+
+        setNewProduct(prev => ({
+            ...prev,
+            [name]: processedValue
+        }));
+
+        validateField(name, processedValue);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validate all fields before submission
+        const fieldsToValidate = ['name', 'price', 'category', 'imageUrl', 'stock', 'netWeight'];
+        fieldsToValidate.forEach(field => validateField(field, newProduct[field as keyof Product]));
+
+        if (Object.keys(errors).length === 0) {
+            dispatch(addProduct(newProduct));
+            setNewProduct({
+                name: '',
+                description: '',
+                price: 0,
+                category: '',
+                imageUrl: '',
+                stock: 0,
+                netWeight: 0,
+                status: 'active'
+            });
+            onHide();
         }
     };
 
-    const resetProductForm = () => {
-        setNewProductName('');
-        setNewProductPrice(0);
-        setNewProductDescription('');
-        setNewProductImage('');
-        setNewProductShortDescription('');
-        setNewProductCategory('');
-        setNewProductStock(0);
-    };
-
     return (
-        <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
-                <Modal.Title>Добавить товар</Modal.Title>
+        <Modal show={show} onHide={onHide} size="lg" centered>
+            <Modal.Header closeButton className="bg-light">
+                <Modal.Title className="w-100 text-center">Добавить новый товар</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form>
-                    <Form.Group controlId="productName">
-                        <Form.Label>Название товара</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Введите название товара"
-                            value={newProductName}
-                            onChange={(e) => setNewProductName(e.target.value)}
-                        />
-                    </Form.Group>
+                <Form onSubmit={handleSubmit}>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <Form.Group className="mb-3">
+                                <Form.Label>Название товара *</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="name"
+                                    value={newProduct.name}
+                                    onChange={handleChange}
+                                    isInvalid={!!errors.name}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.name}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                    <Form.Group controlId="productPrice">
-                        <Form.Label>Цена</Form.Label>
-                        <Form.Control
-                            type="number"
-                            placeholder="Введите цену товара"
-                            value={newProductPrice}
-                            onChange={(e) => setNewProductPrice(Number(e.target.value))}
-                        />
-                    </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Описание</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    name="description"
+                                    value={newProduct.description}
+                                    onChange={handleChange}
+                                    rows={3}
+                                />
+                            </Form.Group>
 
-                    <Form.Group controlId="productDescription">
-                        <Form.Label>Описание товара</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            placeholder="Введите описание товара"
-                            value={newProductDescription}
-                            onChange={(e) => setNewProductDescription(e.target.value)}
-                        />
-                    </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Цена *</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="price"
+                                    value={newProduct.price}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    isInvalid={!!errors.price}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.price}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                    <Form.Group controlId="productImage">
-                        <Form.Label>Картинка</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Введите ссылку на картинку"
-                            value={newProductImage}
-                            onChange={(e) => setNewProductImage(e.target.value)}
-                        />
-                    </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Категория *</Form.Label>
+                                <Form.Select
+                                    name="category"
+                                    value={newProduct.category}
+                                    onChange={handleChange}
+                                    isInvalid={!!errors.category}
+                                >
+                                    <option value="">Выберите категорию</option>
+                                    {categories.map((category) => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.category}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </div>
 
-                    <Form.Group controlId="productShortDescription">
-                        <Form.Label>Краткое описание</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Введите краткое описание"
-                            value={newProductShortDescription}
-                            onChange={(e) => setNewProductShortDescription(e.target.value)}
-                        />
-                    </Form.Group>
+                        <div className="col-md-6">
+                            <Form.Group className="mb-3">
+                                <Form.Label>URL изображения</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="imageUrl"
+                                    value={newProduct.imageUrl}
+                                    onChange={handleChange}
+                                    isInvalid={!!errors.imageUrl}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.imageUrl}
+                                </Form.Control.Feedback>
+                            </Form.Group>
 
-                    <Form.Group controlId="productCategory">
-                        <Form.Label>Категория</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={newProductCategory}
-                            onChange={(e) => setNewProductCategory(e.target.value)}
+                            <Form.Group className="mb-3">
+                                <Form.Label>Остаток на складе</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="stock"
+                                    value={newProduct.stock}
+                                    onChange={handleChange}
+                                    min="0"
+                                    isInvalid={!!errors.stock}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.stock}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Вес нетто</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="netWeight"
+                                    value={newProduct.netWeight}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    isInvalid={!!errors.netWeight}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.netWeight}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Статус</Form.Label>
+                                <Form.Select
+                                    name="status"
+                                    value={newProduct.status}
+                                    onChange={handleChange}
+                                >
+                                    <option value="active">Активен</option>
+                                    <option value="inactive">Неактивен</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </div>
+                    </div>
+
+                    {Object.keys(errors).length > 0 && (
+                        <Alert variant="danger">
+                            Пожалуйста, исправьте ошибки перед отправкой формы
+                        </Alert>
+                    )}
+
+                    <div className="d-flex justify-content-end mt-4">
+                        <Button
+                            variant="secondary"
+                            onClick={onHide}
+                            className="me-2"
                         >
-                            <option value="">Выберите категорию</option>
-                            {categories.map((category) => (
-                                <option key={category._id} value={category.name}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-
-                    <Form.Group controlId="productStock">
-                        <Form.Label>Количество на складе</Form.Label>
-                        <Form.Control
-                            type="number"
-                            placeholder="Введите количество товара на складе"
-                            value={newProductStock}
-                            onChange={(e) => setNewProductStock(Number(e.target.value))}
-                        />
-                    </Form.Group>
+                            Отмена
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                        >
+                            Добавить товар
+                        </Button>
+                    </div>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Закрыть
-                </Button>
-                <Button variant="primary" onClick={handleAddProduct}>
-                    Добавить товар
-                </Button>
-            </Modal.Footer>
         </Modal>
     );
 };

@@ -202,6 +202,7 @@ const Account: React.FC = () => {
         );
     }
     console.log(user)
+    {console.log(styles.profileImage)}
     return (
         <Container style={styles.container}>
             <motion.h2
@@ -246,6 +247,7 @@ const Account: React.FC = () => {
                                     src={"http://localhost:3000" + avatarUrl}
                                     roundedCircle
                                     className="mb-3"
+
                                     style={styles.profileImage}
                                 />
 

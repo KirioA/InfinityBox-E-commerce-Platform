@@ -3,9 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
 import { ProductProvider } from './contexts/ProductContext';
-import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
+import ProductDetails from './pages/ProductDetail';
 import CatalogPage from './pages/CatalogPage';
 import Cart from './pages/Cart';
 import Auth from './pages/Auth';
@@ -29,11 +28,11 @@ import AdminAuthPage from "./pages/admin/AdminAuthPage.tsx";
 import EditUser from "./pages/admin/EditUser.tsx";
 import './styles/global.css'
 import UserManagement from "./pages/admin/UserManagement.tsx";
+import AdminProductManagement from "./pages/admin/AdminCatalog.tsx";
 
 function App() {
     return (
         <ThemeProvider>
-        <AuthProvider> {/* Оборачиваем все приложение в AuthProvider */}
             <ProductProvider>
                 <CartProvider>
                     <Router>
@@ -43,7 +42,7 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/catalog" element={<CatalogPage />} />
-                                <Route path="/product/:id" element={<ProductDetail />} />
+
                                 <Route path="/cart" element={<Cart />} />
                                 <Route path="/auth" element={<Auth />} />
                                 <Route
@@ -59,6 +58,9 @@ function App() {
                                 <Route
                                     path="/admin/users"
                                     element={<AdminRoute element={<UserManagement />} />} />
+                                <Route
+                                    path="/admin/products"
+                                    element={<AdminRoute element={<AdminProductManagement />} />} />
 
 
                                 <Route path="/about" element={<About />} />
@@ -72,13 +74,13 @@ function App() {
                                 <Route path="/admin" element={<AdminDashboard />} />
                                 <Route path="/admin/edit-user/:userId" element={<EditUser />} />
                                 <Route path="/admin/auth" element={<AdminAuthPage />} />
+                                <Route path="/products/:id" element={<ProductDetails />} />
                             </Routes>
                         </div>
                         <Footer />
                     </Router>
                 </CartProvider>
             </ProductProvider>
-        </AuthProvider>
         </ThemeProvider>
     );
 }

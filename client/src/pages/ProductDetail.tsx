@@ -1,64 +1,62 @@
-// src/pages/ProductDetail.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Card } from 'react-bootstrap';
-import { useCart } from '../contexts/CartContext';
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../hooks/reduxHooks.tsx';
+import { RootState } from '../redux/store.ts'; // Импортируем тип корневого состояния
+import { fetchProductById } from '../slices/productSlice';
+import { Container, Card, Spinner, Alert } from 'react-bootstrap';
 
-interface Product {
-    id: string;
-    title: string;
-    description: string;
-    price: number;
-}
-
-const ProductDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>(); // Получаем ID продукта из параметров маршрута
-    const [product, setProduct] = useState<Product | null>(null); // Состояние для хранения информации о товаре
-    const { addToCart } = useCart(); // Функция для добавления в корзину
-    const navigate = useNavigate(); // Новый хук для навигации
+const ProductDetails: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    console.log('ID из useParams:', id);
+    const dispatch = useAppDispatch();
+    const { selectedProduct: product, loading, error } = useAppSelector((state: RootState) => state.products);
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            const products: Product[] = [
-                { id: '1', title: 'Товар 1', description: 'Описание товара 1', price: 100 },
-                { id: '2', title: 'Товар 2', description: 'Описание товара 2', price: 200 },
-                { id: '3', title: 'Товар 3', description: 'Описание товара 3', price: 300 }
-            ];
-            const foundProduct = products.find(p => p.id === id);
-            if (foundProduct) {
-                setProduct(foundProduct);
-            } else {
-                navigate('/'); // Перенаправляем на главную страницу, если товар не найден
-            }
-        };
-
-        fetchProduct();
-    }, [id, navigate]);
-
-    const handleAddToCart = () => {
-        if (product) {
-            addToCart(product);
+        if (id) {
+            console.log("work")
+            dispatch(fetchProductById(id));
         }
-    };
+    }, [id, dispatch]);
+
+    console.log(product)
+
+    if (loading) {
+        return (
+            <Container className="text-center mt-5">
+                <Spinner animation="border" />
+            </Container>
+        );
+    }
+
+    if (error) {
+        return (
+            <Container className="text-center mt-5">
+                <Alert variant="danger">{error}</Alert>
+            </Container>
+        );
+    }
 
     if (!product) {
-        return <p>Загрузка...</p>; // Пока не загрузится товар, показываем индикатор загрузки
+        return (
+            <Container className="text-center mt-5">
+                <h2>Товар не найден</h2>
+            </Container>
+        );
     }
 
     return (
-        <div className="product-detail-container">
+        <Container className="mt-5">
             <Card>
+                <Card.Img variant="top" src={product.imageUrl} alt={product.name} />
                 <Card.Body>
-                    <Card.Title>{product.title}</Card.Title>
+                    <Card.Title>{product.name}</Card.Title>
                     <Card.Text>{product.description}</Card.Text>
-                    <Card.Text>Цена: {product.price} ₽</Card.Text>
-                    <Button variant="primary" onClick={handleAddToCart}>
-                        Добавить в корзину
-                    </Button>
+                    <Card.Text><strong>Цена: {product.price} ₽</strong></Card.Text>
+                    <Card.Text><small>{product.category}</small></Card.Text>
                 </Card.Body>
             </Card>
-        </div>
+        </Container>
     );
 };
 
-export default ProductDetail;
+export default ProductDetails;

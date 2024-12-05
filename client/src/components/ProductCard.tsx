@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, title, description, price
                 <Button variant="primary" onClick={() => addToCart({ id, title, description, price, category, imageUrl })}>
                     Добавить в корзину
                 </Button>
-                <Link to={`/product/${id}`} style={{ textDecoration: 'none' }}>
+                <Link to={`/products/${id}`} style={{ textDecoration: 'none' }}>
                     <Button variant="link" className="mt-2">Подробнее</Button>
                 </Link>
             </Card.Body>
