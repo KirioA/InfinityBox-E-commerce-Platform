@@ -1,7 +1,6 @@
 // App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CartProvider } from './contexts/CartContext';
 import { ProductProvider } from './contexts/ProductContext';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetail';
@@ -34,7 +33,6 @@ function App() {
     return (
         <ThemeProvider>
             <ProductProvider>
-                <CartProvider>
                     <Router>
                         <ScrollToTop /> {/* Добавляем компонент ScrollToTop */}
                         <Header />
@@ -79,7 +77,6 @@ function App() {
                         </div>
                         <Footer />
                     </Router>
-                </CartProvider>
             </ProductProvider>
         </ThemeProvider>
     );

@@ -43,6 +43,24 @@ export const fetchProductById = createAsyncThunk(
         }
     }
 );
+export const fetchActiveProducts = createAsyncThunk(
+    'products/fetchActiveProducts',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axios.get('/api/v1/products', {
+                params: { status: "active" }  // Параметр должен быть корректно передан
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error('Error fetching active products:', error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message || 'An error occurred');
+            }
+            return rejectWithValue('An unknown error occurred');
+        }
+    }
+);
+
 
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',

@@ -18,9 +18,11 @@ import { userUploadAvatar, upload } from './routes/user/userUploadAvatar.js';
 import { addAddress } from './routes/user/userAddAdress.js';
 import { deleteAddress } from './routes/user/userDeleteAdress.js';
 import { userUpdatePersonalInfo } from './routes/user/userUpdatePersonalInfo.js';
-import {getAllUsers } from "./routes/user/userGetAll";
-import {deleteUser} from "./routes/user/userDelete";
-import productsRoutes from './routes/products/products.routes';
+import { getAllUsers } from './routes/user/userGetAll.js';
+import { deleteUser } from './routes/user/userDelete.js';
+import productsRoutes from './routes/products/products.routes.js';
+import { addCart } from './routes/products/cartAdd';  // Импортируем новый эндпоинт для корзины
+import { getDashboardStats } from './routes/products/adminGetStats';  // Импортируем новый эндпоинт для статистики
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +38,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-http://localhost:3000/
 
 app.use('/uploads', express.static(path.resolve('uploads')));
 console.log('[INFO] Serving static files from /uploads');
@@ -62,10 +63,13 @@ app.delete('/api/v1/admin/users/:id', deleteUser);
 
 app.use('/api/v1/products', productsRoutes);
 
+app.get('/api/v1/admin/dashboard-stats', getDashboardStats);
+
+app.post('/api/v1/user/save-cart', authenticateJWT, addCart);
+
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // Простая проверка, замените на свою логику
   if (username === 'admin' && password === 'password') {
     return res.status(200).json({ success: true });
   } else {
@@ -73,7 +77,7 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-// Новый эндпоинт для загрузки аватарки
+// Эндпоинт для загрузки аватарки
 app.post(
     '/api/v1/user/upload-avatar',
     authenticateJWT,

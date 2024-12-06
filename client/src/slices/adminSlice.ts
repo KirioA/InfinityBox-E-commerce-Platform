@@ -14,6 +14,14 @@ interface User {
     orders: number;
     totalSpent: number;
 }
+interface DashboardStats {
+    totalUsers: number;
+    totalProducts: number;
+    totalCategories: number;
+    totalSales: number;
+    totalRevenue: number;
+}
+
 
 interface AdminState {
     isAdminAuthenticated: boolean;
@@ -48,6 +56,21 @@ export const fetchUsers = createAsyncThunk(
         }
     }
 );
+
+export const fetchDashboardStats = createAsyncThunk(
+    'admin/fetchDashboardStats',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axios.get('/api/v1/admin/dashboard-stats');
+            console.log('Fetched dashboard stats:', response.data);
+            return response.data.data; // Данные о статистике
+        } catch (error: any) {
+            console.error('Error fetching dashboard stats:', error);
+            return rejectWithValue(error.response?.data?.message || 'Ошибка при получении статистики');
+        }
+    }
+);
+
 export const deleteUser = createAsyncThunk(
     'admin/deleteUser',
     async (userId: string, thunkAPI) => {
@@ -106,6 +129,17 @@ const adminSlice = createSlice({
             .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || 'Ошибка удаления пользователя';
+            })
+            .addCase(fetchDashboardStats.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchDashboardStats.fulfilled, (state, action) => {
+                state.loading = false;
+                state.dashboardStats = action.payload;
+            })
+            .addCase(fetchDashboardStats.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
             });
     },
 });

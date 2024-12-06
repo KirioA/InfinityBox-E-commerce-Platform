@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { FiShoppingCart } from 'react-icons/fi';
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { useAppSelector } from '../hooks/reduxHooks.tsx';
 import logo from '../img/logo.svg';
 import '../styles/global.css';
+import { selectCart } from '../slices/cartSlice'; // Импортируйте селектор
 
 const Header: React.FC = () => {
     const navigate = useNavigate();
-    const { getTotalItems } = useCart();
-    const totalItems = getTotalItems();
     const { theme, toggleTheme } = useTheme();
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+    const cartItems = useAppSelector(selectCart); // Получаем cartItems из store
     const [expanded, setExpanded] = useState(false);
-    const [isCategoryHovered, setIsCategoryHovered] = useState(false);
+    const [isCategoryHovered, setIsCategoryHovered] = useState(false); // Для десктопа
+    const [isCategoryOpen, setIsCategoryOpen] = useState(false); // Для мобильных
 
     const handleSelect = () => setExpanded(false);
+
+    // Функция для подсчета общего количества товаров в корзине
+    const getTotalQuantity = () => {
+        return cartItems && cartItems.length > 0
+            ? cartItems.reduce((total, item) => total + item.quantity, 0)
+            : 0;
+    };
+
+    const totalQuantity = getTotalQuantity(); // Получаем общее количество товаров
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -38,11 +47,6 @@ const Header: React.FC = () => {
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
         },
         navLink: {
-            color: theme === 'light' ? '#000' : '#fff',
-            fontWeight: 500,
-        },
-        navLinkCat: {
-            display: isCategoryHovered ? 'block' : 'none',
             color: theme === 'light' ? '#000' : '#fff',
             fontWeight: 500,
         },
@@ -90,20 +94,40 @@ const Header: React.FC = () => {
             gap: '15px',
         },
     };
-    // const categories = [
-    //     { label: 'Категория 1', link: '/category/1' },
-    //     { label: 'Категория 2', link: '/category/2' },
-    //     { label: 'Категория 3', link: '/category/3' },
-    // ];
 
-    const CartIcon = () => (
-        <Link to="/cart" style={styles.cartButton}>
-            <FiShoppingCart size={24} />
-            {totalItems > 0 && (
-                <span style={styles.badge}>{totalItems}</span>
-            )}
-        </Link>
-    );
+    const CartIcon = () => {
+        return (
+            <Link to="/cart" style={styles.cartButton}>
+                <FiShoppingCart size={24} />
+                {totalQuantity > 0 && (
+                    <span style={styles.badge}>{totalQuantity}</span>
+                )}
+            </Link>
+        );
+    };
+
+    const handleCategoryHover = () => {
+        // Наведение для десктопа
+        if (window.innerWidth >= 992) {
+            setIsCategoryHovered(true);
+        }
+    };
+
+    const handleCategoryLeave = () => {
+        // Убираем hover-эффект на десктопе
+        if (window.innerWidth >= 992) {
+            setIsCategoryHovered(false);
+        }
+    };
+
+    const handleCategoryClick = () => {
+        // Для мобильных устройств используем click
+        if (window.innerWidth < 992) {
+            setIsCategoryOpen(!isCategoryOpen);
+        }
+        navigate('/catalog')
+        setExpanded(false)
+    };
 
     return (
         <header style={styles.header}>
@@ -119,9 +143,8 @@ const Header: React.FC = () => {
                         <img src={logo} alt="logo" height="40px" />
                     </Navbar.Brand>
 
-                    <div style={styles.mobileControls} >
-                        {/* Корзина в мобильном виде */}
-                        <div className="d-lg-none"  onClick={handleSelect}>
+                    <div style={styles.mobileControls}>
+                        <div className="d-lg-none" onClick={handleSelect}>
                             <CartIcon />
                         </div>
                         <Navbar.Toggle
@@ -134,56 +157,43 @@ const Header: React.FC = () => {
 
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="ms-auto d-flex align-items-center" onSelect={handleSelect}>
-                            {/* Каталог */}
-                            <Nav.Item
-                                className="mx-3"
-
-                            >
-                                <Dropdown>
-                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}
-                                                     onMouseEnter={() => setIsCategoryHovered(true)}
-                                                     onMouseLeave={() => setIsCategoryHovered(false)}
-                                                     onClick={() => navigate("/catalog")}
+                            <Nav.Item className="mx-3">
+                                <Dropdown
+                                    show={isCategoryOpen || isCategoryHovered} // Управляем состоянием открытия меню категорий
+                                    onToggle={(isOpen) => setIsCategoryOpen(isOpen)}
+                                >
+                                    <Dropdown.Toggle
+                                        variant="link"
+                                        className="nav-link"
+                                        style={styles.navLink}
+                                        onClick={handleCategoryClick} // Для мобильных
+                                        onMouseEnter={handleCategoryHover} // Для десктопа
+                                        onMouseLeave={handleCategoryLeave} // Для десктопа
                                     >
-
-
                                         Каталог
                                     </Dropdown.Toggle>
-                                    <div style={styles.navLinkCat}
-                                         onMouseEnter={() => setIsCategoryHovered(true)}
-                                         onMouseLeave={() => setIsCategoryHovered(false)}>
-                                        <Dropdown.Menu onClick={handleSelect} style={styles.navLinkCat}>
-                                            {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
-                                                <Dropdown.Item
-                                                    as={Link}
-                                                    to={`/category/${index + 1}`}
-                                                    key={category}
-                                                >
-                                                    {category}
-                                                </Dropdown.Item>
-                                            ))}
-
-                                                {/*{categories.map((category) => (*/}
-                                                {/*    <Dropdown.Item*/}
-                                                {/*        key={category.label}*/}
-
-                                                {/*        to={category.link}*/}
-
-                                                {/*        onClick={handleSelect}*/}
-                                                {/*    >*/}
-                                                {/*        {category.label}*/}
-                                                {/*    </Dropdown.Item>*/}
-                                                {/*))}*/}
-
-                                        </Dropdown.Menu>
+                                    <div  onMouseEnter={handleCategoryHover} // Для десктопа
+                                          onMouseLeave={handleCategoryLeave}>
+                                    <Dropdown.Menu
+                                        onClick={handleSelect}
+                                    >
+                                        {['Категория 1', 'Категория 2', 'Категория 3'].map((category, index) => (
+                                            <Dropdown.Item
+                                                as={Link}
+                                                to={`/category/${index + 1}`}
+                                                key={category}
+                                            >
+                                                {category}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
                                     </div>
                                 </Dropdown>
                             </Nav.Item>
 
-                            {/* Компания */}
                             <Nav.Item className="mx-3">
                                 <Dropdown>
-                                <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
+                                    <Dropdown.Toggle variant="link" className="nav-link" style={styles.navLink}>
                                         Компания
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu onClick={handleSelect}>
@@ -201,7 +211,6 @@ const Header: React.FC = () => {
                                 </Dropdown>
                             </Nav.Item>
 
-                            {/* Прочие ссылки */}
                             <Nav.Item className="mx-3">
                                 <Link to="/delivery" className="nav-link" style={styles.navLink} onClick={handleSelect}>
                                     Доставка и оплата
@@ -224,7 +233,6 @@ const Header: React.FC = () => {
                                 </Link>
                             </Nav.Item>
 
-                            {/* Кнопка смены темы */}
                             <Nav.Item className="mx-3">
                                 <button onClick={toggleTheme} style={styles.themeButton}>
                                     {theme === 'light' ? (
@@ -235,8 +243,7 @@ const Header: React.FC = () => {
                                 </button>
                             </Nav.Item>
 
-                            {/* Корзина в десктопном виде */}
-                            <Nav.Item className="ms-3 d-none d-lg-block" onClick={handleSelect} >
+                            <Nav.Item className="ms-3 d-none d-lg-block" onClick={handleSelect}>
                                 <CartIcon />
                             </Nav.Item>
                         </Nav>

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, ListGroup, Alert, Container } from 'react-bootstrap';
-import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, removeFromCart, updateQuantity, clearCart, saveCartToServer } from '../slices/cartSlice'; // Подключаем действия из слайса
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTheme } from '../contexts/ThemeContext';  // Импортируем контекст темы
 
@@ -14,24 +15,25 @@ interface CartItem {
 }
 
 const Cart: React.FC = () => {
-    const { cart, removeFromCart, updateQuantity } = useCart() as {
-        cart: CartItem[];
-        removeFromCart: (id: string) => void;
-        updateQuantity: (id: string, quantity: number) => void;
-    };
+    const dispatch = useDispatch();
+    const cart = useSelector((state: { cart: { cart: CartItem[] } }) => state.cart.cart); // Получаем состояние корзины из Redux
 
     const { theme } = useTheme(); // Используем контекст для получения текущей темы
 
     const handleRemove = (productId: string) => {
-        removeFromCart(productId);
+        dispatch(removeFromCart(productId)); // Удаляем товар из корзины
     };
 
     const handleQuantityChange = (productId: string, newQuantity: number) => {
         if (newQuantity <= 0) {
-            handleRemove(productId);
+            handleRemove(productId); // Если количество товара меньше или равно 0, удаляем товар
         } else {
-            updateQuantity(productId, newQuantity);
+            dispatch(updateQuantity({ productId, newQuantity })); // Обновляем количество товара в корзине
         }
+    };
+
+    const handleClearCart = () => {
+        dispatch(clearCart()); // Очищаем корзину
     };
 
     // Встроенные стили с учетом текущей темы
@@ -104,7 +106,31 @@ const Cart: React.FC = () => {
             color: '#ffffff',
             borderColor: '#66bb6a',
         },
+        clearCartButton: {
+            backgroundColor: '#f44336',
+            borderColor: '#f44336',
+            color: '#ffffff',
+            borderRadius: '5px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            marginTop: '20px',
+            width: '100%',
+            transition: 'background-color 0.3s ease',
+        },
+        clearCartButtonHover: {
+            backgroundColor: '#e53935',
+            borderColor: '#e53935',
+        },
     };
+
+    // Отправляем обновления на сервер при изменении корзины
+    useEffect(() => {
+        if (cart.length > 0) {
+            dispatch(saveCartToServer(cart)); // Сохраняем корзину на сервере
+        } else {
+            dispatch(saveCartToServer([])); // Очищаем корзину на сервере, если корзина пустая
+        }
+    }, [cart, dispatch]);
 
     return (
         <div style={styles.pageContainer}>
@@ -134,88 +160,90 @@ const Cart: React.FC = () => {
                         </Link>
                     </div>
                 ) : (
-                    <ListGroup>
-                        {cart.map((item) => (
-                            <ListGroup.Item
-                                key={item.id}
-                                style={styles.cartItem}
-                                onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor = styles.cartItemHover.backgroundColor)
-                                }
-                                onMouseLeave={(e) =>
-                                    (e.currentTarget.style.backgroundColor = styles.cartItem.backgroundColor)
-                                }
-                            >
-                                <div className="d-flex justify-content-between">
-                                    <div>
-                                        <h5 style={styles.itemTitle}>{item.title}</h5>
-                                        <p style={styles.itemText}>{item.description}</p>
-                                        <p>Цена: {item.price} ₽</p>
+                    <>
+                        <ListGroup>
+                            {cart.map((item) => (
+                                <ListGroup.Item
+                                    key={item.id}
+                                    style={styles.cartItem}
+                                    onMouseEnter={(e) =>
+                                        (e.currentTarget.style.backgroundColor = styles.cartItemHover.backgroundColor)
+                                    }
+                                    onMouseLeave={(e) =>
+                                        (e.currentTarget.style.backgroundColor = styles.cartItem.backgroundColor)
+                                    }
+                                >
+                                    <div className="d-flex justify-content-between">
+                                        <div>
+                                            <h5 style={styles.itemTitle}>{item.title}</h5>
+                                            <p style={styles.itemText}>{item.description}</p>
+                                            <p>Цена: {item.price} ₽</p>
+                                        </div>
+                                        <div className="d-flex align-items-center">
+                                            <Button
+                                                variant="secondary"
+                                                style={styles.secondaryButton}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor =
+                                                        styles.secondaryButtonHover.backgroundColor;
+                                                    e.currentTarget.style.borderColor =
+                                                        styles.secondaryButtonHover.borderColor;
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor =
+                                                        styles.secondaryButton.backgroundColor;
+                                                    e.currentTarget.style.borderColor =
+                                                        styles.secondaryButton.borderColor;
+                                                }}
+                                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                            >
+                                                -
+                                            </Button>
+                                            <span className="mx-3">{item.quantity}</span>
+                                            <Button
+                                                variant="secondary"
+                                                style={styles.secondaryButton}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor =
+                                                        styles.secondaryButtonHover.backgroundColor;
+                                                    e.currentTarget.style.borderColor =
+                                                        styles.secondaryButtonHover.borderColor;
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor =
+                                                        styles.secondaryButton.backgroundColor;
+                                                    e.currentTarget.style.borderColor =
+                                                        styles.secondaryButton.borderColor;
+                                                }}
+                                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                            >
+                                                +
+                                            </Button>
+                                            <Button
+                                                variant="danger"
+                                                style={styles.dangerButton}
+                                                onClick={() => handleRemove(item.id)}
+                                            >
+                                                Удалить
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <div className="d-flex align-items-center">
-                                        <Button
-                                            variant="secondary"
-                                            style={styles.secondaryButton}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.secondaryButtonHover.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.secondaryButtonHover.borderColor;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.secondaryButton.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.secondaryButton.borderColor;
-                                            }}
-                                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                        >
-                                            -
-                                        </Button>
-                                        <span className="mx-3">{item.quantity}</span>
-                                        <Button
-                                            variant="secondary"
-                                            style={styles.secondaryButton}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.secondaryButtonHover.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.secondaryButtonHover.borderColor;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.secondaryButton.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.secondaryButton.borderColor;
-                                            }}
-                                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                        >
-                                            +
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            style={{ ...styles.dangerButton, marginLeft: '10px' }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.dangerButtonHover.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.dangerButtonHover.borderColor;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.backgroundColor =
-                                                    styles.dangerButton.backgroundColor;
-                                                e.currentTarget.style.borderColor =
-                                                    styles.dangerButton.borderColor;
-                                            }}
-                                            onClick={() => handleRemove(item.id)}
-                                        >
-                                            Удалить
-                                        </Button>
-                                    </div>
-                                </div>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                        <Button
+                            style={styles.clearCartButton}
+                            onClick={handleClearCart}
+                            onMouseEnter={(e) => {
+                                Object.assign(e.currentTarget.style, styles.clearCartButtonHover);
+                            }}
+                            onMouseLeave={(e) => {
+                                Object.assign(e.currentTarget.style, styles.clearCartButton);
+                            }}
+                        >
+                            Очистить корзину
+                        </Button>
+                    </>
                 )}
             </Container>
         </div>
