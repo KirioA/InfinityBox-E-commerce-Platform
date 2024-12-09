@@ -86,7 +86,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, title, description, price
         >
             <Card.Img
                 variant="top"
-                src={imageUrl}
+                src={"http://localhost:3000" + imageUrl}
                 alt={title}
                 style={styles.img}
             />

@@ -18,9 +18,9 @@ interface Product {
 interface EditProductModalProps {
     show: boolean;
     onHide: () => void;
-    productId: string; // Убрал необязательность
+    productId: string;
     categories: string[];
-    onSave: (product: Product) => void; // Добавил обратный вызов сохранения
+    onSave: (product: Product) => void;
 }
 
 const EditProductModal: React.FC<EditProductModalProps> = ({
@@ -28,13 +28,15 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                                                                onHide,
                                                                productId,
                                                                categories,
-                                                               onSave
+                                                               onSave,
                                                            }) => {
     const dispatch = useDispatch();
-    const { selectedProduct, loading, error } = useSelector((state: RootState) => state.products);
+    const { selectedProduct, loading, error } = useSelector(
+        (state: RootState) => state.products
+    );
 
     const [editedProduct, setEditedProduct] = useState<Product>({
-        id: '', // Инициализация обязательного поля
+        id: '',
         name: '',
         description: '',
         price: 0,
@@ -46,6 +48,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     });
 
     const [validated, setValidated] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
         if (show) {
@@ -57,14 +60,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         if (selectedProduct && show) {
             setEditedProduct({
                 ...selectedProduct,
-                id: selectedProduct.id, // Гарантированное наличие id
+                id: selectedProduct.id,
                 price: Math.max(0, selectedProduct.price || 0),
                 stock: Math.max(0, selectedProduct.stock || 0),
                 netWeight: Math.max(0, selectedProduct.netWeight || 0),
                 status: selectedProduct.status || 'active',
+                imageUrl: selectedProduct.imageUrl || '',
             });
+            setImagePreview(selectedProduct.imageUrl); // Set image preview
         }
     }, [selectedProduct, show]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setEditedProduct((prev) => ({
@@ -74,7 +80,37 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                 : value,
         }));
     };
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+                setEditedProduct((prev) => ({
+                    ...prev,
+                    imageUrl: file.name, // Save only file name or URL to send to the server
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleUpdateProduct = (updatedData: FormData) => {
+        const updatedFields: any = {}; // Fields to send without FormData
+
+        // Extract only the data from FormData
+        updatedData.forEach((value, key) => {
+            if (key !== 'image') {
+                updatedFields[key] = value;
+            }
+        });
+
+        // Now send only the data without FormData
+        dispatch(updateProduct({ id: editedProduct.id, updatedData: updatedFields }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
 
@@ -84,10 +120,31 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
             return;
         }
 
-        dispatch(updateProduct({ id: editedProduct.id, updatedData: editedProduct }));
-        onSave(editedProduct); // Вызов обратного вызова
-        onHide();
+        const formData = new FormData();
+        formData.append('name', editedProduct.name);
+        formData.append('description', editedProduct.description);
+        formData.append('price', String(editedProduct.price));
+        formData.append('category', editedProduct.category);
+        formData.append('stock', String(editedProduct.stock));
+        formData.append('netWeight', String(editedProduct.netWeight));
+        formData.append('status', editedProduct.status);
+
+        if (editedProduct.imageUrl) {
+            const imageFile = editedProduct.imageUrl instanceof File ? editedProduct.imageUrl : null;
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+        }
+
+        try {
+            await dispatch(updateProduct({ id: editedProduct.id, updatedData: formData }));
+            onSave(editedProduct);
+            onHide();
+        } catch (err) {
+            console.error('Error saving product:', err);
+        }
     };
+
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
             <Modal.Header closeButton className="bg-light">
@@ -195,13 +252,35 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                             <Form.Group className="mb-3">
                                 <Form.Label>URL изображения</Form.Label>
                                 <Form.Control
-                                    type="url"
+                                    type="text"
                                     name="imageUrl"
                                     value={editedProduct.imageUrl}
                                     onChange={handleChange}
                                 />
                             </Form.Group>
                         </Col>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Загрузить новое изображение</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    onChange={handleImageChange}
+                                    accept="image/*"
+                                />
+                                {imagePreview && (
+                                    <div className="mt-3">
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            style={{ maxWidth: '100%', maxHeight: '200px' }}
+                                        />
+                                    </div>
+                                )}
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+                    <Row>
                         <Col md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Статус</Form.Label>
@@ -218,27 +297,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                     </Row>
 
                     <div className="d-flex justify-content-end mt-3">
-                        <Button
-                            variant="secondary"
-                            onClick={onHide}
-                            className="me-2"
-                        >
+                        <Button variant="secondary" onClick={onHide}>
                             Отмена
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            disabled={loading}
-                        >
-                            {loading ? 'Сохранение...' : 'Сохранить изменения'}
+                        <Button variant="primary" type="submit" className="ms-2">
+                            Сохранить
                         </Button>
                     </div>
-
-                    {error && (
-                        <div className="alert alert-danger mt-3" role="alert">
-                            {error}
-                        </div>
-                    )}
                 </Form>
             </Modal.Body>
         </Modal>

@@ -1,6 +1,38 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { dbGetConnection } from '../../database.js';
+
+// Конфигурация multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.resolve('uploads/images');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    },
+});
+
+const upload = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/;
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = fileTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(new Error('Формат изображения не поддерживается!'));
+        }
+    },
+}).single('image');
 
 // Интерфейс продукта для типизации
 interface Product {
@@ -35,8 +67,8 @@ export const getProducts = async (req: Request, res: Response) => {
                 imageUrl: product.imageUrl,
                 stock: product.stock || 0,
                 netWeight: product.netWeight,
-                status: product.status
-            }))
+                status: product.status,
+            })),
         });
     } catch (error) {
         console.error('[ERROR][getProducts]: ', error);
@@ -72,8 +104,8 @@ export const getProductById = async (req: Request, res: Response) => {
                 imageUrl: product.imageUrl,
                 stock: product.stock || 0,
                 netWeight: product.netWeight,
-                status: product.status
-            }
+                status: product.status,
+            },
         });
     } catch (error) {
         console.error('[ERROR][getProductById]: ', error);
@@ -81,20 +113,64 @@ export const getProductById = async (req: Request, res: Response) => {
     }
 };
 
-// Обновление продукта по ID
-export const updateProductById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const {
+// Добавление нового продукта с загрузкой изображения
+export const addProduct = async (req: Request, res: Response) => {
+    upload(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({ success: false, message: 'Ошибка загрузки файла!', error: err.message });
+        } else if (err) {
+            return res.status(400).json({ success: false, message: 'Ошибка обработки файла!', error: err.message });
+        }
+
+        const { name, description, price, category, stock = 0, netWeight, status = 'active' } = req.body;
+
+        if (!name || !description || !price || !category) {
+            return res.status(400).json({
+                success: false,
+                message: 'Не все обязательные поля заполнены!',
+                requiredFields: ['name', 'description', 'price', 'category', 'image'],
+            });
+        }
+
+        const imageUrl = req.file ? `/uploads/images/${req.file.filename}` : '';
+
+        const db = await dbGetConnection();
+        const productsCollection = db.collection('products');
+
+        const newProduct: Product = {
             name,
             description,
-            price,
+            price: parseFloat(price),
             category,
             imageUrl,
-            stock,
-            netWeight,
-            status
-        } = req.body;
+            stock: parseInt(stock, 10),
+            netWeight: netWeight ? parseFloat(netWeight) : undefined,
+            status,
+            createdAt: new Date(),
+        };
+
+        const result = await productsCollection.insertOne(newProduct);
+
+        console.log(`[DONE]: Product added, ID: ${result.insertedId}`);
+        return res.status(201).json({
+            success: true,
+            message: 'Продукт добавлен!',
+            productId: result.insertedId,
+        });
+    });
+};
+
+// Обновление продукта с возможностью замены изображения
+export const updateProductById = async (req: Request, res: Response) => {
+    upload(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({ success: false, message: 'Ошибка загрузки файла!', error: err.message });
+        } else if (err) {
+            return res.status(400).json({ success: false, message: 'Ошибка обработки файла!', error: err.message });
+        }
+
+        const { id } = req.params;
+        const { name, description, price, category, stock, netWeight, status } = req.body;
 
         if (!ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: 'Некорректный ID продукта!' });
@@ -102,19 +178,16 @@ export const updateProductById = async (req: Request, res: Response) => {
 
         const updatedFields: Partial<Product> = {};
 
-        // Проверка и добавление каждого поля
         if (name !== undefined) updatedFields.name = name;
         if (description !== undefined) updatedFields.description = description;
-        if (price !== undefined) updatedFields.price = price;
+        if (price !== undefined) updatedFields.price = parseFloat(price);
         if (category !== undefined) updatedFields.category = category;
-        if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
-        if (stock !== undefined) updatedFields.stock = stock;
-        if (netWeight !== undefined) updatedFields.netWeight = netWeight;
+        if (stock !== undefined) updatedFields.stock = parseInt(stock, 10);
+        if (netWeight !== undefined) updatedFields.netWeight = parseFloat(netWeight);
         if (status !== undefined) updatedFields.status = status;
 
-        // Проверка наличия полей для обновления
-        if (Object.keys(updatedFields).length === 0) {
-            return res.status(400).json({ success: false, message: 'Не переданы данные для обновления!' });
+        if (req.file) {
+            updatedFields.imageUrl = `/uploads/images/${req.file.filename}`;
         }
 
         const db = await dbGetConnection();
@@ -131,62 +204,7 @@ export const updateProductById = async (req: Request, res: Response) => {
 
         console.log(`[DONE]: Product updated, ID: ${id}`);
         return res.status(200).json({ success: true, message: 'Данные продукта обновлены!' });
-    } catch (error) {
-        console.error('[ERROR][updateProductById]: ', error);
-        return res.status(500).json({ success: false, message: 'Ошибка сервера!' });
-    }
-};
-
-// Добавление нового продукта
-export const addProduct = async (req: Request, res: Response) => {
-    try {
-        const {
-            name,
-            description,
-            price,
-            category,
-            imageUrl,
-            stock = 0,
-            netWeight,
-            status = 'active'
-        } = req.body;
-
-        // Проверка обязательных полей
-        if (!name || !description || !price || !category || !imageUrl) {
-            return res.status(400).json({
-                success: false,
-                message: 'Не все обязательные поля заполнены!',
-                requiredFields: ['name', 'description', 'price', 'category', 'imageUrl']
-            });
-        }
-
-        const db = await dbGetConnection();
-        const productsCollection = db.collection('products');
-
-        const newProduct: Product = {
-            name,
-            description,
-            price,
-            category,
-            imageUrl,
-            stock,
-            netWeight,
-            status,
-            createdAt: new Date()
-        };
-
-        const result = await productsCollection.insertOne(newProduct);
-
-        console.log(`[DONE]: Product added, ID: ${result.insertedId}`);
-        return res.status(201).json({
-            success: true,
-            message: 'Продукт добавлен!',
-            productId: result.insertedId
-        });
-    } catch (error) {
-        console.error('[ERROR][addProduct]: ', error);
-        return res.status(500).json({ success: false, message: 'Ошибка сервера!' });
-    }
+    });
 };
 
 // Удаление продукта

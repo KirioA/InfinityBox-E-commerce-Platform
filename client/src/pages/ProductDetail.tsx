@@ -124,7 +124,7 @@ const ProductDetails: React.FC = () => {
                         {product.imageUrl ? (
                             <Card.Img
                                 variant="top"
-                                src={product.imageUrl}
+                                src={"http://localhost:3000" + product.imageUrl}
                                 alt={product.name}
                                 className="p-3"
                                 style={{ borderRadius: '8px', maxHeight: '400px', objectFit: 'contain' }}
@@ -220,7 +220,7 @@ const ProductDetails: React.FC = () => {
                                 <Card style={Styles.card.shadow}>
                                     <Card.Img
                                         variant="top"
-                                        src={item.imageUrl}
+                                        src={"http://localhost:3000" + item.imageUrl}
                                         alt={`Рекомендуемый товар ${item.name}`}
                                     />
                                     <Card.Body>

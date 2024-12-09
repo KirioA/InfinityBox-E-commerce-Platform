@@ -132,8 +132,8 @@ const AdminProductManagement: React.FC = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {filteredProducts.map((product) => (
-                    <tr key={product.id}>
+                {filteredProducts.map((product, index) => (
+                    <tr key={`${product.id}-${index}`}>
                         <td>{product.id}</td>
                         <td>{product.name}</td>
                         <td>{product.price} ₽</td>

@@ -82,19 +82,12 @@ export const fetchProducts = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
     'products/updateProduct',
-    async ({ id, updatedData }: { id: string; updatedData: Partial<Product> }, { rejectWithValue }) => {
-        try {
-            const response = await axios.put(`/api/v1/products/${id}`, updatedData);
-            if (response.data.success) {
-                return { id, updatedData };
-            } else {
-                return rejectWithValue('Не удалось обновить продукт');
-            }
-        } catch (err) {
-            return rejectWithValue('Ошибка при обновлении продукта');
-        }
+    async ({ id, updatedData }: { id: string; updatedData: FormData }) => {
+        const response = await axios.put(`/api/v1/products/${id}`, updatedData);
+        return response.data;
     }
 );
+
 
 export const addProduct = createAsyncThunk(
     'products/addProduct',

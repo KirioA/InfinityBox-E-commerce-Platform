@@ -8,7 +8,7 @@ interface Product {
     description: string;
     price: number;
     category: string;
-    imageUrl: string;
+    imageUrl?: string;
     stock?: number;
     netWeight?: number;
     status?: string;
@@ -28,13 +28,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
         description: '',
         price: 0,
         category: '',
-        imageUrl: '',
         stock: 0,
         netWeight: 0,
-        status: 'active'
+        status: 'active',
     });
 
-    const [errors, setErrors] = useState<{[key: string]: string}>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const validateField = (name: string, value: string | number) => {
         const newErrors = { ...errors };
@@ -64,30 +64,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                     delete newErrors.category;
                 }
                 break;
-            case 'imageUrl':
-                // if (value && !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(value.toString())) {
-                //     newErrors.imageUrl = 'Введите корректный URL изображения';
-                // } else {
-                //     delete newErrors.imageUrl;
-                // }
-                delete newErrors.imageUrl;
-                break;
-            case 'stock':
-                const stock = Number(value);
-                if (stock < 0) {
-                    newErrors.stock = 'Остаток на складе не может быть отрицательным';
-                } else {
-                    delete newErrors.stock;
-                }
-                break;
-            case 'netWeight':
-                const netWeight = Number(value);
-                if (netWeight < 0) {
-                    newErrors.netWeight = 'Вес не может быть отрицательным';
-                } else {
-                    delete newErrors.netWeight;
-                }
-                break;
         }
 
         setErrors(newErrors);
@@ -96,45 +72,81 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        const processedValue = name === 'price' || name === 'stock' || name === 'netWeight'
-            ? Number(value)
-            : value;
+        const processedValue =
+            name === 'price' || name === 'stock' || name === 'netWeight'
+                ? Number(value)
+                : value;
 
-        setNewProduct(prev => ({
+        setNewProduct((prev) => ({
             ...prev,
-            [name]: processedValue
+            [name]: processedValue,
         }));
 
         validateField(name, processedValue);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate all fields before submission
-        const fieldsToValidate = ['name', 'price', 'category', 'imageUrl', 'stock', 'netWeight'];
-        fieldsToValidate.forEach(field => validateField(field, newProduct[field as keyof Product]));
+        const fieldsToValidate = ['name', 'price', 'category'];
+        fieldsToValidate.forEach((field) =>
+            validateField(field, newProduct[field as keyof Product])
+        );
 
         if (Object.keys(errors).length === 0) {
-            dispatch(addProduct(newProduct));
-            setNewProduct({
-                name: '',
-                description: '',
-                price: 0,
-                category: '',
-                imageUrl: '',
-                stock: 0,
-                netWeight: 0,
-                status: 'active'
-            });
-            onHide();
+            const formData = new FormData();
+            formData.append('name', newProduct.name);
+            formData.append('description', newProduct.description);
+            formData.append('price', newProduct.price.toString());
+            formData.append('category', newProduct.category);
+            formData.append('status', newProduct.status || 'active');
+
+            if (newProduct.stock) formData.append('stock', newProduct.stock.toString());
+            if (newProduct.netWeight) formData.append('netWeight', newProduct.netWeight.toString());
+            if (selectedFile) formData.append('image', selectedFile);
+
+            try {
+                // Отправка данных на сервер (замените URL на ваш)
+                const response = await fetch('http://localhost:3000/api/v1/products', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при добавлении товара');
+                }
+
+                const result = await response.json();
+                dispatch(addProduct(result));
+                setNewProduct({
+                    name: '',
+                    description: '',
+                    price: 0,
+                    category: '',
+                    stock: 0,
+                    netWeight: 0,
+                    status: 'active',
+                });
+                setSelectedFile(null);
+                onHide();
+            } catch (error) {
+                console.error(error);
+                alert('Не удалось добавить товар');
+            }
         }
     };
 
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
-            <Modal.Header closeButton className="bg-light">
-                <Modal.Title className="w-100 text-center">Добавить новый товар</Modal.Title>
+            <Modal.Header closeButton>
+                <Modal.Title>Добавить новый товар</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
@@ -201,22 +213,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </div>
-
                         <div className="col-md-6">
-                            <Form.Group className="mb-3">
-                                <Form.Label>URL изображения</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="imageUrl"
-                                    value={newProduct.imageUrl}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.imageUrl}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors.imageUrl}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-
                             <Form.Group className="mb-3">
                                 <Form.Label>Остаток на складе</Form.Label>
                                 <Form.Control
@@ -227,9 +224,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                                     min="0"
                                     isInvalid={!!errors.stock}
                                 />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors.stock}
-                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group className="mb-3">
@@ -241,11 +235,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
-                                    isInvalid={!!errors.netWeight}
                                 />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors.netWeight}
-                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group className="mb-3">
@@ -259,6 +249,15 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                                     <option value="inactive">Неактивен</option>
                                 </Form.Select>
                             </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Загрузите изображение</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
+                            </Form.Group>
                         </div>
                     </div>
 
@@ -269,17 +268,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onHide, categor
                     )}
 
                     <div className="d-flex justify-content-end mt-4">
-                        <Button
-                            variant="secondary"
-                            onClick={onHide}
-                            className="me-2"
-                        >
+                        <Button variant="secondary" onClick={onHide} className="me-2">
                             Отмена
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                        >
+                        <Button type="submit" variant="primary">
                             Добавить товар
                         </Button>
                     </div>

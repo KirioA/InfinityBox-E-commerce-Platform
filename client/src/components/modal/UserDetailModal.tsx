@@ -34,6 +34,7 @@ const renderRoleBadge = (role: string) => {
     }
 };
 
+
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ show, onHide, user }) => {
     if (!user) return null;
 
@@ -95,12 +96,17 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ show, onHide, user 
                                         <strong>Телефон:</strong> {user.phone || 'Не указан'}
                                     </Col>
                                     <Col md={6}>
-                                        <strong>Адрес:</strong> {renderAddress(user.address)}
+                                        <strong>Адрес:</strong>
+                                        {/*{renderAddress(user.address)}*/}
+                                        <strong>
+                                            {(user.address)}
+                                            , {(user.address)}
+                                        </strong>
                                     </Col>
                                 </Row>
                                 <Row className="mb-2">
                                     <Col md={6}>
-                                        <strong>Дата регистрации:</strong> {new Date(user.registrationDate).toLocaleString()}
+                                        <strong>Дата регистрации:</strong> {new Date(user?.createdAt).toLocaleDateString()}
                                     </Col>
                                     <Col md={6}>
                                         <strong>Последний вход:</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Нет данных'}
