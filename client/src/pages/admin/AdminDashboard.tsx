@@ -17,7 +17,6 @@ const AdminDashboard: React.FC = () => {
         }
     }, [dispatch, dashboardStats]);
 
-    console.log(dashboardStats)
     const navigateToSection = (section: string) => {
         switch (section) {
             case 'users':
@@ -34,6 +33,15 @@ const AdminDashboard: React.FC = () => {
                 break;
             case 'analytics':
                 navigate('/admin/analytics');
+                break;
+            case 'news':
+                navigate('/admin/news');
+                break;
+            case 'vacancies':
+                navigate('/admin/vacancies');
+                break;
+            case 'reviews':
+                navigate('/admin/reviews');
                 break;
             default:
                 break;
@@ -91,6 +99,54 @@ const AdminDashboard: React.FC = () => {
                                         className="w-100"
                                     >
                                         Управление категориями
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row className="mb-4">
+                        <Col md={4}>
+                            <Card className="mb-3">
+                                <Card.Body>
+                                    <Card.Title>Новости</Card.Title>
+                                    <Card.Text>Управление новостными статьями</Card.Text>
+                                    <Button
+                                        variant="warning"
+                                        onClick={() => navigateToSection('news')}
+                                        className="w-100"
+                                    >
+                                        Управление новостями
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col md={4}>
+                            <Card className="mb-3">
+                                <Card.Body>
+                                    <Card.Title>Вакансии</Card.Title>
+                                    <Card.Text>Добавление и редактирование вакансий</Card.Text>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => navigateToSection('vacancies')}
+                                        className="w-100"
+                                    >
+                                        Управление вакансиями
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col md={4}>
+                            <Card className="mb-3">
+                                <Card.Body>
+                                    <Card.Title>Отзывы</Card.Title>
+                                    <Card.Text>Просмотр и модерация отзывов</Card.Text>
+                                    <Button
+                                        variant="info"
+                                        onClick={() => navigateToSection('reviews')}
+                                        className="w-100"
+                                    >
+                                        Управление отзывами
                                     </Button>
                                 </Card.Body>
                             </Card>

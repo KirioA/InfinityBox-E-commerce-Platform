@@ -22,7 +22,9 @@ import { getAllUsers } from './routes/user/userGetAll.js';
 import { deleteUser } from './routes/user/userDelete.js';
 import productsRoutes from './routes/products/products.routes.js';
 import { addCart } from './routes/products/cartAdd';  // Импортируем новый эндпоинт для корзины
-import { getDashboardStats } from './routes/products/adminGetStats';  // Импортируем новый эндпоинт для статистики
+import { getDashboardStats } from './routes/products/adminGetStats';
+import newsRoutes from "./routes/news/news.routes";  // Импортируем новый эндпоинт для статистики
+import jobsRoutes from "./routes/jobs/jobs.routes";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -62,6 +64,8 @@ app.delete('/api/v1/user/delete-address/:addressId', authenticateJWT, deleteAddr
 app.delete('/api/v1/admin/users/:id', deleteUser);
 
 app.use('/api/v1/products', productsRoutes);
+app.use('/api/v1/news', newsRoutes);
+app.use('/api/v1/jobs', jobsRoutes);
 
 app.get('/api/v1/admin/dashboard-stats', getDashboardStats);
 

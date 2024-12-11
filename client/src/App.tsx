@@ -28,7 +28,8 @@ import EditUser from "./pages/admin/EditUser.tsx";
 import './styles/global.css'
 import UserManagement from "./pages/admin/UserManagement.tsx";
 import AdminProductManagement from "./pages/admin/AdminCatalog.tsx";
-
+import AdminNewsManagement from "./pages/admin/AdminNewsManagement.tsx";
+import AdminVacancies from "./pages/admin/AdminVacancies.tsx";
 function App() {
     return (
         <ThemeProvider>
@@ -59,6 +60,12 @@ function App() {
                                 <Route
                                     path="/admin/products"
                                     element={<AdminRoute element={<AdminProductManagement />} />} />
+                                <Route
+                                    path="/admin/news"
+                                    element={<AdminRoute element={<AdminNewsManagement />} />} />
+                                <Route
+                                    path="/admin/vacancies"
+                                    element={<AdminRoute element={<AdminVacancies />} />} />
 
 
                                 <Route path="/about" element={<About />} />
@@ -67,7 +74,7 @@ function App() {
                                 <Route path="/careers" element={<Vacancies />} />
                                 <Route path="/news" element={<News />} />
                                 <Route path="/reviews" element={<Reviews />} />
-                                <Route path="/apply/:jobTitle" element={<Apply />} />
+                                <Route path="/apply/:jobId" element={<Apply />} />
                                 <Route path="*" element={<NotFound />} />
                                 <Route path="/admin" element={<AdminDashboard />} />
                                 <Route path="/admin/edit-user/:userId" element={<EditUser />} />
