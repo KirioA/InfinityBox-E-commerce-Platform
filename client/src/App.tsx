@@ -1,7 +1,6 @@
 // App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ProductProvider } from './contexts/ProductContext';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetail';
 import CatalogPage from './pages/CatalogPage';
@@ -33,7 +32,6 @@ import AdminVacancies from "./pages/admin/AdminVacancies.tsx";
 function App() {
     return (
         <ThemeProvider>
-            <ProductProvider>
                     <Router>
                         <ScrollToTop /> {/* Добавляем компонент ScrollToTop */}
                         <Header />
@@ -84,7 +82,6 @@ function App() {
                         </div>
                         <Footer />
                     </Router>
-            </ProductProvider>
         </ThemeProvider>
     );
 }

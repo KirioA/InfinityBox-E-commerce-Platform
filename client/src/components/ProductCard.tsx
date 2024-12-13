@@ -30,90 +30,103 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, title, description, price
         dispatch(addToCart(product)); // Добавление товара в корзину
     };
 
+    // Стили
     const styles = {
+        cardWrapper: {
+            width: '100%',
+            height: '100%',
+        },
         card: {
-            borderRadius: '15px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
         },
         cardHover: {
             transform: 'scale(1.02)',
-            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 8px 12px rgba(0, 0, 0, 0.15)',
         },
-        img: {
-            height: '200px',
-            objectFit: 'cover',
+        imageContainer: {
+            height: '50%',
+            overflow: 'hidden',
         },
-        body: {
-            padding: '1rem',
-            textAlign: 'center' as const,
+        image: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover' as const,
         },
-        title: {
-            fontSize: '1.1rem',
-            fontWeight: 700,
-            marginBottom: '0.5rem',
-            color: '#2E7D32',
-        },
-        category: {
-            fontSize: '0.9rem',
-            fontStyle: 'italic',
-            color: '#757575',
+        cardBody: {
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
         },
         description: {
-            fontSize: '0.85rem',
-            color: '#616161',
-            marginBottom: '1rem',
+            fontSize: '0.9rem',
+            color: '#555',
+            marginBottom: '0.5rem',
+            height: '3rem',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
         },
         price: {
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: '#2E7D32',
-            marginBottom: '1rem',
+            fontWeight: 'bold',
+            fontSize: '1.25rem',
+            color: 'green',
         },
-        button: {
-            margin:'1.5rem 0',
-            borderRadius: '30px',
+        buttonGroup: {
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '8px',
         },
     };
 
     return (
-        <Card
-            style={styles.card}
-            className="product-card"
-            onMouseEnter={(e) => e.currentTarget.style.transform = styles.cardHover.transform}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-            <Card.Img
-                variant="top"
-                src={"http://localhost:3000" + imageUrl}
-                alt={title}
-                style={styles.img}
-            />
-            <Card.Body style={styles.body}>
-                <Card.Title style={styles.title}>{title}</Card.Title>
-                <Card.Text style={styles.category}>{category}</Card.Text>
-                <Card.Text style={styles.description}>
-                    {description.length > 60 ? `${description.slice(0, 60)}...` : description}
-                </Card.Text>
-                <Card.Text style={styles.price}>{price.toLocaleString()} BYN</Card.Text>
-                <Button
-                    variant="success"
-                    style={styles.button}
-                    onClick={handleAddToCart}
-                >
-                    В корзину
-                </Button>
-                <Link to={`/products/${id}`} style={{ textDecoration: 'none' }}>
-                    <Button
-                        variant="outline-secondary"
-                        style={styles.button}
-                    >
-                        Подробнее
-                    </Button>
-                </Link>
-            </Card.Body>
-        </Card>
+        <div style={styles.cardWrapper}>
+            <Card
+                style={styles.card}
+                onMouseEnter={(e) => {
+                    (e.currentTarget.style.transform = styles.cardHover.transform);
+                    (e.currentTarget.style.boxShadow = styles.cardHover.boxShadow);
+                }}
+                onMouseLeave={(e) => {
+                    (e.currentTarget.style.transform = 'none');
+                    (e.currentTarget.style.boxShadow = styles.card.boxShadow as string);
+                }}
+            >
+                <div style={styles.imageContainer}>
+                    <Card.Img
+                        variant="top"
+                        src={"http://localhost:3000" + imageUrl}
+                        alt={title}
+                        style={styles.image}
+                    />
+                </div>
+                <Card.Body style={styles.cardBody}>
+                    <div>
+                        <Card.Title className="text-success text-truncate">{title}</Card.Title>
+                        <Card.Text className="text-muted small mb-1">{category}</Card.Text>
+                        <Card.Text style={styles.description}>
+                            {description.length > 60 ? `${description.slice(0, 60)}...` : description}
+                        </Card.Text>
+                        <Card.Text style={styles.price}>
+                            {price.toLocaleString()} BYN
+                        </Card.Text>
+                    </div>
+                    <div style={styles.buttonGroup}>
+                        <Button variant="success" className="w-50" onClick={handleAddToCart}>
+                            В корзину
+                        </Button>
+                        <Link to={`/products/${id}`} className="w-50">
+                            <Button variant="outline-secondary" className="w-100">
+                                Подробнее
+                            </Button>
+                        </Link>
+                    </div>
+                </Card.Body>
+            </Card>
+        </div>
     );
 };
 

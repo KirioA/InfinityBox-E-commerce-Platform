@@ -66,7 +66,7 @@ const ProductDetails: React.FC = () => {
         if (products.length > 0 && product) {
             const filteredRecommendedProducts = products
                 .filter((item) => item.id !== product.id) // Исключаем текущий товар
-                .slice(0, 3)// Ограничиваем до 3 товаров
+                .slice(0, 4)// Ограничиваем до 3 товаров
                 .filter((item) => item.status !== 'inactive');
             setRecommendedProducts(filteredRecommendedProducts);
         }
@@ -214,20 +214,38 @@ const ProductDetails: React.FC = () => {
             <Row style={Styles.recommendedSection}>
                 <Col>
                     <h3 className="text-success">Рекомендуемые товары</h3>
-                    <Row>
+                    <Row className="g-3"> {/* Используем класс для отступов между карточками */}
                         {recommendedProducts.map((item) => (
-                            <Col key={item.id} md={4} className="mb-4">
-                                <Card style={Styles.card.shadow}>
+                            <Col
+                                key={item.id}
+                                xs={12} sm={6} md={4} lg={3} // Адаптивность
+                                className="d-flex"
+                            >
+                                <Card className="flex-grow-1" style={{ ...Styles.card }}>
                                     <Card.Img
                                         variant="top"
                                         src={"http://localhost:3000" + item.imageUrl}
                                         alt={`Рекомендуемый товар ${item.name}`}
+                                        style={{
+                                            objectFit: 'cover',
+                                            height: '200px',
+                                            borderTopLeftRadius: '8px',
+                                            borderTopRightRadius: '8px',
+                                        }}
                                     />
-                                    <Card.Body>
-                                        <Card.Title>{item.name}</Card.Title>
-                                        <Card.Text>{item.description}</Card.Text>
-                                        <Link to={`/products/${item.id}`} style={{ textDecoration: 'none' }}>
-                                            <Button variant="success" size="sm" style={{ backgroundColor: '#81c784' }}>
+                                    <Card.Body className="d-flex flex-column">
+                                        <Card.Title className="text-truncate" style={{ minHeight: '3rem', fontSize: '1.2rem' }}>
+                                            {item.name}
+                                        </Card.Title>
+                                        <Card.Text className="text-truncate" style={{ flexGrow: 1, minHeight: '5rem' }}>
+                                            {item.description}
+                                        </Card.Text>
+                                        <Link to={`/products/${item.id}`} className="mt-auto">
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                style={{ backgroundColor: '#81c784', width: '100%' }}
+                                            >
                                                 Подробнее
                                             </Button>
                                         </Link>

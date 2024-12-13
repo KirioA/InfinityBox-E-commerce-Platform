@@ -53,6 +53,17 @@ const Delivery: React.FC = () => {
             padding: '20px',
             margin: 'auto',
         },
+        mapContainer: {
+            marginTop: '40px',
+            textAlign: 'center' as const,
+        },
+        map: {
+            border: '0',
+            width: '100%',
+            height: '400px',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+        },
     };
 
     return (
@@ -153,16 +164,35 @@ const Delivery: React.FC = () => {
                 </Col>
             </Row>
 
+            <Row style={styles.mapContainer}>
+                <Col>
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{duration: 2}}
+                    >
+                        <h5 style={styles.heading5}>Наш офис в Минске</h5>
+                        <iframe
+                            title="Google Map Minsk"
+                            style={styles.map}
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2348.3491200141367!2d27.573856815990377!3d53.87205038009661!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46dbcf2cb6c7f569%3A0x9bdfc2a220b7c05f!2z0J_RgNC40LfQvtC9INCc0LjRgdC60L7QstC-0YDRgdC60LjQuSDQvdCwINC60YDQsNGA0LrQsNGPINC_0L7RgNC40L3Rjw!5e0!3m2!1sru!2sby!4v1700000000000!5m2!1sru!2sby"
+                            loading="lazy"
+                            allowFullScreen
+                        ></iframe>
+                    </motion.div>
+                </Col>
+            </Row>
+
             <Row className="mt-5">
                 <Col>
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 2 }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{duration: 2}}
                     >
                         <h5 style={styles.heading5}>Часто задаваемые вопросы</h5>
                         <Accordion>
-                            {Array.from({ length: 10 }, (_, index) => (
+                            {Array.from({length: 10 }, (_, index) => (
                                 <Accordion.Item eventKey={String(index)} key={index}>
                                     <Accordion.Header style={styles.accordionHeader}>
                                         <div>
